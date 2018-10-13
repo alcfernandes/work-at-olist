@@ -1,0 +1,6 @@
+-r requirements.txt
+
+# For use on unit tests
+model-mommy==1.6.0
+freezegun==0.3.10
+coverage==4.5.1
