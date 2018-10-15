@@ -204,7 +204,7 @@ LIMIT_STORAGE_SIZE = 1073741824
 
 REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'validation_error',
-    'EXCEPTION_HANDLER': 'bcfit.core.util.drf.exception_handler',
+    'EXCEPTION_HANDLER': 'calls.core.util.drf.exception_handler',
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
