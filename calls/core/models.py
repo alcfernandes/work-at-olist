@@ -1,5 +1,7 @@
 from django.db import models
 
+from calls.core.validators import phone_number_validator
+
 
 class PricingRule(models.Model):
 
@@ -15,3 +17,40 @@ class PricingRule(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class CallDetail(models.Model):
+
+    class Meta:
+        verbose_name = "call detail"
+        verbose_name_plural = "calls details"
+
+    # Record Type
+    START = 'start'
+    END = 'end'
+    TYPES_CHOICES = (
+        (START, "Call Start"),
+        (END, "Call End"),
+    )
+
+    type = models.CharField("record type", max_length=5, choices=TYPES_CHOICES)
+    timestamp = models.DateTimeField()
+    call_id = models.PositiveIntegerField()
+    source = models.CharField(
+        "source phone number",
+        max_length=11,
+        validators=[phone_number_validator],
+        null=True,
+        blank=True,
+    )
+    destination = models.CharField(
+        "destination phone number",
+        max_length=11,
+        validators=[phone_number_validator],
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return f'Call id:{self.call_id} - Detail id:{self.id} - {self.type} on {self.timestamp} ' \
+               f'from {self.source} to {self.destination}.'
