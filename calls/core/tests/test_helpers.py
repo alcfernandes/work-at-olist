@@ -25,3 +25,4 @@ class TimeBetweenTest(TestCase):
         expected = {'hours': 24, 'minutes': 0, 'seconds': 5}
         result = time_between(datetime(2018, 1, 1, 10, 10, 20), datetime(2018, 1, 2, 10, 10, 25))
         self.assertEqual(expected, result, msg="Delta days must be add on hours value.")
+

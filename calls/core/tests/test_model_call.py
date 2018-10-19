@@ -1,4 +1,6 @@
-from datetime import time
+from datetime import datetime, time
+import pytz
+
 from decimal import Decimal
 
 from django.test import TestCase
@@ -38,7 +40,7 @@ class CallDurationCalculationTest(TestCase):
         CallDetail.objects.create(
             id=7001,
             type=CallDetail.START,
-            timestamp="2016-02-29T21:57:13Z",
+            timestamp=datetime(2016, 2, 29, 21, 57, 13, tzinfo=pytz.UTC),
             source="99988526423",
             destination="9933468278",
             call_id=70,
@@ -48,7 +50,7 @@ class CallDurationCalculationTest(TestCase):
         CallDetail.objects.create(
             id=7002,
             type=CallDetail.END,
-            timestamp="2016-02-29T22:17:53Z",
+            timestamp=datetime(2016, 2, 29, 22, 17, 53, tzinfo=pytz.UTC),
             call_id=70,
         )
 
@@ -61,7 +63,7 @@ class CallDurationCalculationTest(TestCase):
             'seconds': 40
         }
 
-        self.assertEqual(expected_duration, call.duration(), msg="Should calculate the call duration.")
+        self.assertEqual(expected_duration, call.duration, msg="Should calculate the call duration.")
 
     def test_duration_after_receiving_just_start_record(self):
         """
@@ -71,7 +73,7 @@ class CallDurationCalculationTest(TestCase):
         CallDetail.objects.create(
             id=7001,
             type=CallDetail.START,
-            timestamp="2016-02-29T21:57:13Z",
+            timestamp=datetime(2016, 2, 29, 21, 57, 13, tzinfo=pytz.UTC),
             source="99988526423",
             destination="9933468278",
             call_id=70,
@@ -86,7 +88,7 @@ class CallDurationCalculationTest(TestCase):
             'seconds': 0
         }
 
-        self.assertEqual(expected_duration, call.duration(), msg="Should return zero as call duration.")
+        self.assertEqual(expected_duration, call.duration, msg="Should return zero as call duration.")
 
     def test_duration_after_receiving_just_end_records(self):
         """
@@ -96,7 +98,7 @@ class CallDurationCalculationTest(TestCase):
         CallDetail.objects.create(
             id=7002,
             type=CallDetail.END,
-            timestamp="2016-02-29T22:17:53Z",
+            timestamp=datetime(2016, 2, 29, 22, 17, 53, tzinfo=pytz.UTC),
             call_id=70,
         )
 
@@ -109,7 +111,40 @@ class CallDurationCalculationTest(TestCase):
             'seconds': 0
         }
 
-        self.assertEqual(expected_duration, call.duration(), msg="Should return zero as call duration.")
+        self.assertEqual(expected_duration, call.duration, msg="Should return zero as call duration.")
+
+    def test_duration_after_receiving_end_and_start_records(self):
+        """
+        Call duration should be calculated after receive End and Start records (inverse order).
+        """
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=datetime(2016, 2, 29, 22, 17, 53, tzinfo=pytz.UTC),
+            call_id=70,
+        )
+
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=datetime(2016, 2, 29, 21, 57, 13, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        self.assertEqual(Call.objects.filter(id=70).count(), 1, msg="Should create one Call record.")
+        call = Call.objects.get(id=70)
+
+        expected_duration = {
+            'hours': 0,
+            'minutes': 20,
+            'seconds': 40
+        }
+
+        self.assertEqual(expected_duration, call.duration, msg="Should calculate the call duration.")
 
 
 class CallPriceCalculationTest(TestCase):
@@ -132,13 +167,13 @@ class CallPriceCalculationTest(TestCase):
 
     def test_calculate_after_receiving_start_and_end_records(self):
         """
-        Call duration should be calculated after receive Start and End records on that order.
+        Call price should be calculated after receive Start and End records on that order.
         """
         # Input a Detail Start Record
         CallDetail.objects.create(
             id=7001,
             type=CallDetail.START,
-            timestamp="2016-02-29T21:57:13Z",
+            timestamp=datetime(2016, 2, 29, 21, 57, 13, tzinfo=pytz.UTC),
             source="99988526423",
             destination="9933468278",
             call_id=70,
@@ -148,7 +183,7 @@ class CallPriceCalculationTest(TestCase):
         CallDetail.objects.create(
             id=7002,
             type=CallDetail.END,
-            timestamp="2016-02-29T22:17:53Z",
+            timestamp=datetime(2016, 2, 29, 22, 17, 53, tzinfo=pytz.UTC),
             call_id=70,
         )
 
@@ -158,3 +193,68 @@ class CallPriceCalculationTest(TestCase):
         expected_price = Decimal('0.54')
         self.assertEqual(expected_price, call.price, msg="Should calculate the call price.")
 
+    def test_calculate_after_receiving_just_start_records(self):
+        """
+        Call price should be zero after receive just a Call Start Detail Record.
+        """
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=datetime(2016, 2, 29, 21, 57, 13, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        self.assertEqual(Call.objects.filter(id=70).count(), 1, msg="Should create one Call record.")
+        call = Call.objects.get(id=70)
+
+        expected_price = Decimal('0.00')
+        self.assertEqual(expected_price, call.price, msg="The call price should be zero.")
+
+    def test_calculate_after_receiving_just_end_records(self):
+        """
+        Call price should be zero after receive just a Call End Detail Record.
+        """
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=datetime(2016, 2, 29, 22, 17, 53, tzinfo=pytz.UTC),
+            call_id=70,
+        )
+
+        self.assertEqual(Call.objects.filter(id=70).count(), 1, msg="Should create one Call record.")
+        call = Call.objects.get(id=70)
+
+        expected_price = Decimal('0.00')
+        self.assertEqual(expected_price, call.price, msg="The call price should be zero.")
+
+    def test_calculate_after_receiving_end_and_start_records(self):
+        """
+        Call price should be calculated after receive End and Start records (inverted order).
+        """
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=datetime(2016, 2, 29, 22, 17, 53, tzinfo=pytz.UTC),
+            call_id=70,
+        )
+
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=datetime(2016, 2, 29, 21, 57, 13, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        self.assertEqual(Call.objects.filter(id=70).count(), 1, msg="Should create one Call record.")
+        call = Call.objects.get(id=70)
+
+        expected_price = Decimal('0.54')
+        self.assertEqual(expected_price, call.price, msg="Should calculate the call price.")
