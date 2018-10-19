@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from calls.core.models import CallDetail
+from calls.core.models.call import CallDetail
 
 
 class APIStartCallDetailCreate(APITestCase):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from calls.core.models import CallDetail
+from calls.core.models.call import CallDetail
 
 
 class CallDetailSerializer(serializers.HyperlinkedModelSerializer):

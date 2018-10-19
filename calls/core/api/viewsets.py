@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from calls.api_version import API_Version
-from calls.core.models import CallDetail
+from calls.core.models.call import CallDetail
 from calls.core.api.serializers import CallDetailSerializer
 
 

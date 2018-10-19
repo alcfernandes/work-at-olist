@@ -5,7 +5,7 @@ from datetime import time
 from django.test import TestCase
 
 
-from calls.core.models import PricingRule
+from calls.core.models.pricing_rule import PricingRule
 
 
 class PricingRuleModelTest(TestCase):

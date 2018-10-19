@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import PricingRule
+from .models.pricing_rule import PricingRule
 
 
 @admin.register(PricingRule)

@@ -7,7 +7,8 @@ from django.test import TestCase
 
 from model_mommy import mommy
 
-from calls.core.models import Call, CallDetail, PricingRule
+from calls.core.models.call import Call, CallDetail
+from calls.core.models.pricing_rule import PricingRule
 
 
 class CallModelTest(TestCase):

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib import admin
 
-from calls.core.models import PricingRule
+from calls.core.models.pricing_rule import PricingRule
 from calls.core.admin import PricingRuleModelAdmin
 
 
