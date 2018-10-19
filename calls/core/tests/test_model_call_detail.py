@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 
-from calls.core.models import CallDetail
+from calls.core.models.call import CallDetail
 
 
 class CallDetailModelTest(TestCase):
