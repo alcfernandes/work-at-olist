@@ -81,7 +81,7 @@ class Call(models.Model):
     @property
     def duration(self):
         if not (self.detail_start and self.detail_end):
-            return {'hours': 0, 'minutes': 0, 'seconds': 0}
+            return '0h0m0s'
 
         return time_between(self.detail_start.timestamp, self.detail_end.timestamp)
 

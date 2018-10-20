@@ -58,11 +58,7 @@ class CallDurationCalculationTest(TestCase):
         self.assertEqual(Call.objects.filter(id=70).count(), 1, msg="Should create one Call record.")
         call = Call.objects.get(id=70)
 
-        expected_duration = {
-            'hours': 0,
-            'minutes': 20,
-            'seconds': 40
-        }
+        expected_duration = "0h20m40s"
 
         self.assertEqual(expected_duration, call.duration, msg="Should calculate the call duration.")
 
@@ -83,11 +79,7 @@ class CallDurationCalculationTest(TestCase):
         self.assertEqual(Call.objects.filter(id=70).count(), 1, msg="Should create one Call record.")
         call = Call.objects.get(id=70)
 
-        expected_duration = {
-            'hours': 0,
-            'minutes': 0,
-            'seconds': 0
-        }
+        expected_duration = '0h0m0s'
 
         self.assertEqual(expected_duration, call.duration, msg="Should return zero as call duration.")
 
@@ -106,11 +98,7 @@ class CallDurationCalculationTest(TestCase):
         self.assertEqual(Call.objects.filter(id=70).count(), 1, msg="Should create one Call record.")
         call = Call.objects.get(id=70)
 
-        expected_duration = {
-            'hours': 0,
-            'minutes': 0,
-            'seconds': 0
-        }
+        expected_duration = '0h0m0s'
 
         self.assertEqual(expected_duration, call.duration, msg="Should return zero as call duration.")
 
@@ -139,11 +127,7 @@ class CallDurationCalculationTest(TestCase):
         self.assertEqual(Call.objects.filter(id=70).count(), 1, msg="Should create one Call record.")
         call = Call.objects.get(id=70)
 
-        expected_duration = {
-            'hours': 0,
-            'minutes': 20,
-            'seconds': 40
-        }
+        expected_duration = '0h20m40s'
 
         self.assertEqual(expected_duration, call.duration, msg="Should calculate the call duration.")
 

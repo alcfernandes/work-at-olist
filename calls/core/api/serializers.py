@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from calls.core.models.call import CallDetail
+from calls.core.models.call import CallDetail, Call
 
 
 class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
@@ -33,3 +33,32 @@ class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
             'destination',
             'call_id'
         )
+
+
+class CallSerializer(serializers.ModelSerializer):
+    destination = serializers.SerializerMethodField()
+    start_date = serializers.SerializerMethodField()
+    start_time = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
+
+    def get_destination(self, obj):
+        return obj.detail_start.destination
+
+    def get_start_date(self, obj):
+        return obj.detail_start.timestamp.date()
+
+    def get_start_time(self, obj):
+        return obj.detail_start.timestamp.time()
+
+    def get_duration(self, obj):
+        return obj.duration
+
+    class Meta:
+        model = Call
+        fields = [
+            "destination",
+            "start_date",
+            "start_time",
+            "duration",
+            "price"
+        ]

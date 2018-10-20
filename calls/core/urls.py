@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from django.contrib import admin
 from django.urls import path
 
-from calls.core.api.viewsets import ApiVersion, CallDetailViewSet
+from calls.core.api.viewsets import ApiVersion, CallDetailViewSet, CallViewSet
 
 app_name = 'core'
 
@@ -11,6 +11,7 @@ app_name = 'core'
 router = DefaultRouter()
 router.register('version', ApiVersion, base_name='version')
 router.register('call-detail', CallDetailViewSet)
+router.register('bill', CallViewSet, base_name='call')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 
 def time_between(timestamp_start, timestamp_end):
@@ -9,7 +9,7 @@ def time_between(timestamp_start, timestamp_end):
     hours, remainder = divmod(delta.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     hours += delta.days * 24
-    return {'hours': hours, 'minutes': minutes, 'seconds': seconds}
+    return f'{hours}h{minutes}m{seconds}s'
 
 
 def to_timedelta(date):
@@ -21,3 +21,12 @@ def to_timedelta(date):
             'seconds': date.second}
 
     return timedelta(**time)
+
+
+def current_month_year():
+    """
+    Returns a datetime correspond to the first day of the current month and year.
+    """
+    today = datetime.now()
+    return datetime(today.year, today.month, 1)
+
