@@ -220,3 +220,42 @@ class APIEndTypeCallsDetailsValidationTest(APITestCase):
             str(response.content, encoding='utf8'),
             expected_response
         )
+
+
+class APICallDetailCreateUniqueTypeCallValidation(APITestCase):
+    """
+    Case client try to resubmit a record detail of start or end of a call it should be rejected.
+    """
+
+    def setUp(self):
+        CallDetail.objects.create(
+            type=CallDetail.START,
+            timestamp="2016-02-29T12:00:00Z",
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        payload = {
+            'type': CallDetail.START,
+            'timestamp': "2016-02-29T10:00:00Z",
+            'source': "99988526423",
+            'destination': "9933468278",
+            'call_id': 70,
+        }
+
+        self.response = self.client.post('/api/call-detail/', payload)
+
+    def test_unique_type_validation_on_post(self):
+        expected_response = {
+            "validation_error": [
+                "A detail record with this type and call id has already been sent. Delete it before resend it."
+            ]
+        }
+
+        self.assertEqual(self.response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(self.response.content, encoding='utf8'),
+            expected_response
+        )

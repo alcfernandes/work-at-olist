@@ -17,6 +17,7 @@ class CallDetail(models.Model):
     class Meta:
         verbose_name = "call detail"
         verbose_name_plural = "calls details"
+        unique_together = ("type", "call_id")
 
     # Record Type
     START = 'start'

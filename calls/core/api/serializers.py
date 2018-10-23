@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from calls.core.models.call import CallDetail, Call
 
@@ -7,6 +8,7 @@ class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField()
 
     def validate(self, data):
+
         if data['type'] == CallDetail.START and 'source' not in data:
             raise serializers.ValidationError("A start-type call detail record must have a source telephone number.")
 
@@ -20,6 +22,7 @@ class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
         if data['type'] == CallDetail.END and 'destination' in data:
             raise serializers.ValidationError("A end-type call detail record should not have a destination telephone "
                                               "number.")
+
         return data
 
     class Meta:
@@ -33,6 +36,14 @@ class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
             'destination',
             'call_id'
         )
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=CallDetail.objects.all(),
+                fields=('type', 'call_id'),
+                message='A detail record with this type and call id has already been sent. Delete it before resend it.',
+            )
+        ]
 
 
 class CallSerializer(serializers.ModelSerializer):
