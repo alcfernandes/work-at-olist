@@ -46,7 +46,23 @@ class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class CallSerializer(serializers.ModelSerializer):
+class CallSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Call
+        fields = (
+            'url',
+            'id',
+            'detail_start',
+            'detail_end',
+            'duration',
+            'price',
+
+        )
+
+
+class BillSerializer(serializers.ModelSerializer):
     destination = serializers.SerializerMethodField()
     start_date = serializers.SerializerMethodField()
     start_time = serializers.SerializerMethodField()

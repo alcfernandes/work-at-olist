@@ -6,7 +6,7 @@ from rest_framework import status
 
 from calls.api_version import API_Version
 from calls.core.models.call import CallDetail, Call
-from calls.core.api.serializers import CallDetailSerializer, CallSerializer
+from calls.core.api.serializers import CallDetailSerializer, BillSerializer, CallSerializer
 from calls.core.util.helpers import current_month_year
 
 
@@ -22,7 +22,13 @@ class CallDetailViewSet(viewsets.ModelViewSet):
     serializer_class = CallDetailSerializer
 
 
-class CallViewSet(viewsets.ViewSet):
+class CallViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Call.objects.all()
+    serializer_class = CallSerializer
+
+
+class BillViewSet(viewsets.ViewSet):
 
     def list(self, request):
         subscriber = request.GET.get('subscriber', None)
@@ -59,6 +65,6 @@ class CallViewSet(viewsets.ViewSet):
 
         queryset = queryset.filter(**filter_period)
 
-        serializer = CallSerializer(queryset, context={'request': request}, many=True)
+        serializer = BillSerializer(queryset, context={'request': request}, many=True)
 
         return Response(serializer.data)
