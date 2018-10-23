@@ -23,6 +23,9 @@ class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError("A end-type call detail record should not have a destination telephone "
                                               "number.")
 
+        if data['type'] == CallDetail.START and data['destination'] == data['source']:
+            raise serializers.ValidationError("Source and destination telephone number must be different.")
+
         return data
 
     class Meta:

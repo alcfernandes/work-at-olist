@@ -105,6 +105,180 @@ class APIStartTypeCallsDetailsValidationTest(APITestCase):
             expected_response
         )
 
+    def test_on_start_type_calls_details_source_only_numbers_validation(self):
+        """
+        A source telephone number with wrong format must be rejected.
+        """
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.START,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'source': "XY999999999",
+            'destination': "9933468278",
+            'call_id': 70,
+        }
+
+        expected_response = {
+            "source": [
+                "Only numbers are allowed."
+            ]
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_on_start_type_calls_details_destination_only_numbers_validation(self):
+        """
+        A destination telephone number with wrong format must be rejected.
+        """
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.START,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'source': "9933468278",
+            'destination': "XY999999999",
+            'call_id': 70,
+        }
+
+        expected_response = {
+            "destination": [
+                "Only numbers are allowed."
+            ]
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_on_start_type_calls_details_source_max_length_validation(self):
+        """
+        A source telephone number with more than 11 digits must be rejected.
+        """
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.START,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'source': "123456789012",
+            'destination': "12345678901",
+            'call_id': 70,
+        }
+
+        expected_response = {
+            "source": [
+                "Ensure this field has no more than 11 characters."
+            ]
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_on_start_type_calls_details_destination_max_length_validation(self):
+        """
+        A destination telephone number with more than 11 digits must be rejected.
+        """
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.START,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'source': "12345678901",
+            'destination': "123456789012",
+            'call_id': 70,
+        }
+
+        expected_response = {
+            "destination": [
+                "Ensure this field has no more than 11 characters."
+            ]
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_on_start_type_calls_details_source_min_length_validation(self):
+        """
+        A source telephone number with less than 10 digits must be rejected.
+        """
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.START,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'source': "123456789",
+            'destination': "12345678901",
+            'call_id': 70,
+        }
+
+        expected_response = {
+            "source": [
+                "Ensure this field has at least 10 characters."
+            ]
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_on_start_type_calls_details_destination_min_length_validation(self):
+        """
+        A destination telephone number with less than 10 digits must be rejected.
+        """
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.START,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'source': "12345678901",
+            'destination': "123456789",
+            'call_id': 70,
+        }
+
+        expected_response = {
+            "destination": [
+                "Ensure this field has at least 10 characters."
+            ]
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
     def test_on_start_type_calls_details_destination_is_required(self):
         """
         A Call Start Record without a destination telephone number must be rejected.
@@ -121,6 +295,35 @@ class APIStartTypeCallsDetailsValidationTest(APITestCase):
         expected_response = {
             "validation_error": [
                 "A start-type call detail record must have a destination telephone number."
+            ]
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_on_start_type_calls_details_source_and_destination_must_be_different(self):
+        """
+        Equals source and destination telephone number must be rejected.
+        """
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.START,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'source': "9933468278",
+            'destination': "9933468278",
+            'call_id': 70,
+        }
+
+        expected_response = {
+            "validation_error": [
+                "Source and destination telephone number must be different."
             ]
         }
 

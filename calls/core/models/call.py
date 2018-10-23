@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.db.models.signals import post_save, pre_save
-from django.core.validators import ValidationError
+from django.core.validators import ValidationError, MinLengthValidator
 
 from calls.core.validators import phone_number_validator
 from calls.core.util.helpers import time_between
@@ -34,14 +34,14 @@ class CallDetail(models.Model):
     source = models.CharField(
         "source phone number",
         max_length=11,
-        validators=[phone_number_validator],
+        validators=[phone_number_validator, MinLengthValidator(10)],
         null=True,
         blank=True,
     )
     destination = models.CharField(
         "destination phone number",
         max_length=11,
-        validators=[phone_number_validator],
+        validators=[phone_number_validator, MinLengthValidator(10)],
         null=True,
         blank=True,
     )
