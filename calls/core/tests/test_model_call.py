@@ -1,5 +1,6 @@
 from datetime import datetime, time
 import pytz
+from dateutil.parser import parse
 
 from decimal import Decimal
 
@@ -243,3 +244,309 @@ class CallPriceCalculationTest(TestCase):
 
         expected_price = Decimal('0.54')
         self.assertEqual(expected_price, call.price, msg="Should calculate the call price.")
+
+    def test_price_calculate_case_sample_6(self):
+        """
+        Case 6: Start: 2017-12-12 21:57:13 End: 2017-12-13 22:10:56.
+        """
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=datetime(2017, 12, 12, 21, 57, 13, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=75,
+        )
+
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=datetime(2017, 12, 13, 22, 10, 56, tzinfo=pytz.UTC),
+            call_id=75,
+        )
+
+        self.assertEqual(Call.objects.filter(id=75).count(), 1, msg="Should create one Call record.")
+        call = Call.objects.get(id=75)
+
+        expected_price = Decimal('86.94')
+        self.assertEqual(expected_price, call.price, msg="Should calculate the call price.")
+
+
+class SampleCasesCalculationTest(TestCase):
+    def setUp(self):
+        self.pricing = PricingRule.objects.create(
+            name="Standard time call",
+            start_time=time(6, 0, 0),
+            end_time=time(22, 0, 0),
+            standing_charge=Decimal(0.36),
+            minute_call_charge=Decimal(0.09),
+        )
+
+        self.pricing = PricingRule.objects.create(
+            name="Reduced tariff time call",
+            start_time=time(22, 0, 0),
+            end_time=time(6, 0, 0),
+            standing_charge=Decimal(0.36),
+            minute_call_charge=Decimal(0.01),
+        )
+
+    def test_case_sample_1(self):
+        """
+        Sample 1: Start: 2016-02-29 12:00:00 End: 2016-02-29 14:00:00.
+        """
+        call_id = 70
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=parse('2016-02-29T12:00:00Z'),
+            source="99988526423",
+            destination="9933468278",
+            call_id=call_id,
+        )
+
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=parse('2016-02-29T14:00:00Z'),
+            call_id=call_id,
+        )
+
+        self.assertEqual(Call.objects.filter(id=call_id).count(), 1, msg="Should create one Call record")
+        call = Call.objects.get(id=call_id)
+
+        expected_duration = '2h0m0s'
+        self.assertEqual(expected_duration, call.duration, msg="Call duration different than expected")
+
+        expected_price = Decimal('11.16')
+        self.assertEqual(expected_price, call.price, msg="Call price different than expected")
+
+    def test_case_sample_2(self):
+        """
+        Sample 2: Start: 2017-12-12 15:07:13 End: 2017-12-12 14:56:00.
+        """
+        call_id = 71
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=parse('2017-12-12T15:07:13Z'),
+            source="99988526423",
+            destination="9933468278",
+            call_id=call_id,
+        )
+
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=parse('2017-12-12T15:14:56Z'),
+            call_id=call_id,
+        )
+
+        self.assertEqual(Call.objects.filter(id=call_id).count(), 1, msg="Should create one Call record")
+        call = Call.objects.get(id=call_id)
+
+        expected_duration = '0h7m43s'
+        self.assertEqual(expected_duration, call.duration, msg="Call duration different than expected")
+
+        expected_price = Decimal('0.99')
+        self.assertEqual(expected_price, call.price, msg="Call price different than expected")
+
+    def test_case_sample_3(self):
+        """
+        Sample 3: Start: 2017-12-12 22:47:56 End: 2017-12-12 22:50:56.
+        """
+        call_id = 72
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=parse('2017-12-12T22:47:56Z'),
+            source="99988526423",
+            destination="9933468278",
+            call_id=call_id,
+        )
+
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=parse('2017-12-12T22:50:56Z'),
+            call_id=call_id,
+        )
+
+        self.assertEqual(Call.objects.filter(id=call_id).count(), 1, msg="Should create one Call record")
+        call = Call.objects.get(id=call_id)
+
+        expected_duration = '0h3m0s'
+        self.assertEqual(expected_duration, call.duration, msg="Call duration different than expected")
+
+        expected_price = Decimal('0.39')
+        self.assertEqual(expected_price, call.price, msg="Call price different than expected")
+
+    def test_case_sample_4(self):
+        """
+        Sample 4: Start: 2017-12-12 21:57:13 End: 2017-12-12 22:10:56.
+        """
+        call_id = 73
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=parse('2017-12-12T21:57:13Z'),
+            source="99988526423",
+            destination="9933468278",
+            call_id=call_id,
+        )
+
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=parse('2017-12-12T22:10:56Z'),
+            call_id=call_id,
+        )
+
+        self.assertEqual(Call.objects.filter(id=call_id).count(), 1, msg="Should create one Call record")
+        call = Call.objects.get(id=call_id)
+
+        expected_duration = '0h13m43s'
+        self.assertEqual(expected_duration, call.duration, msg="Call duration different than expected")
+
+        expected_price = Decimal('0.64')
+        self.assertEqual(expected_price, call.price, msg="Call price different than expected")
+
+    def test_case_sample_5(self):
+        """
+        Sample 5: Start: 2017-12-12 04:57:13 End: 2017-12-12 06:10:56.
+        """
+        call_id = 74
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=parse('2017-12-12T04:57:13Z'),
+            source="99988526423",
+            destination="9933468278",
+            call_id=call_id,
+        )
+
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=parse('2017-12-12T06:10:56Z'),
+            call_id=call_id,
+        )
+
+        self.assertEqual(Call.objects.filter(id=call_id).count(), 1, msg="Should create one Call record")
+        call = Call.objects.get(id=call_id)
+
+        expected_duration = '1h13m43s'
+        self.assertEqual(expected_duration, call.duration, msg="Call duration different than expected")
+
+        expected_price = Decimal('1.88')
+        self.assertEqual(expected_price, call.price, msg="Call price different than expected")
+
+    def test_case_sample_6(self):
+        """
+        Sample 6: Start: 2017-12-12 21:57:13 End: 2017-12-13 22:10:56.
+        """
+        call_id = 75
+
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=parse('2017-12-12T21:57:13Z'),
+            source="99988526423",
+            destination="9933468278",
+            call_id=call_id,
+        )
+
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=parse('2017-12-13T22:10:56Z'),
+            call_id=call_id,
+        )
+
+        self.assertEqual(Call.objects.filter(id=call_id).count(), 1, msg="Should create one Call record")
+        call = Call.objects.get(id=call_id)
+
+        expected_duration = '24h13m43s'
+        self.assertEqual(expected_duration, call.duration, msg="Call duration different than expected")
+
+        expected_price = Decimal('91.84')
+        self.assertEqual(expected_price, call.price, msg="Call price different than expected")
+
+    def test_case_sample_7(self):
+        """
+        Sample 7: Start: 2017-12-12 15:07:58 End: 2017-12-12 15:12:56.
+        """
+        call_id = 76
+
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=parse('2017-12-12T15:07:58Z'),
+            source="99988526423",
+            destination="9933468278",
+            call_id=call_id,
+        )
+
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=parse('2017-12-12T15:12:56Z'),
+            call_id=call_id,
+        )
+
+        self.assertEqual(Call.objects.filter(id=call_id).count(), 1, msg="Should create one Call record")
+        call = Call.objects.get(id=call_id)
+
+        expected_duration = '0h4m58s'
+        self.assertEqual(expected_duration, call.duration, msg="Call duration different than expected")
+
+        expected_price = Decimal('0.72')
+        self.assertEqual(expected_price, call.price, msg="Call price different than expected")
+
+    def test_case_sample_8(self):
+        """
+        Sample 8: Start: 2018-02-28 21:57:13 End: 2018-03-01 22:10:56.
+        """
+        call_id = 76
+
+        # Input a Detail Start Record
+        CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=parse('2018-02-28T21:57:13Z'),
+            source="99988526423",
+            destination="9933468278",
+            call_id=call_id,
+        )
+
+        # Input a Detail End Record
+        CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=parse('2018-03-01T22:10:56Z'),
+            call_id=call_id,
+        )
+
+        self.assertEqual(Call.objects.filter(id=call_id).count(), 1, msg="Should create one Call record")
+        call = Call.objects.get(id=call_id)
+
+        expected_duration = '24h13m43s'
+        self.assertEqual(expected_duration, call.duration, msg="Call duration different than expected")
+
+        expected_price = Decimal('91.84')
+        self.assertEqual(expected_price, call.price, msg="Call price different than expected")

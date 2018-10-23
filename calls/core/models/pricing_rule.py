@@ -1,5 +1,6 @@
 from decimal import Decimal
-from datetime import time
+from datetime import time, datetime, timedelta
+import pytz
 
 from django.db import models
 
@@ -22,12 +23,8 @@ class PricingRule(models.Model):
         return self.name
 
     @staticmethod
-    def rules():
-        """
-        To facilitate the calculation of fares, it returns the charging rules by breaking time bands
-        that pass from one day to another (eg 22:00 to 06:00), one for each day
-        eg (22:00 to 06:00) => (22:00 to 23:59 and 00:00 to 06:00)
-        """
+    def map_day_time_rules():
+
         rules = PricingRule.objects.all()
         result = []
 
@@ -35,8 +32,8 @@ class PricingRule(models.Model):
             if rule.start_time > rule.end_time:
                 result.append(
                     {
-                        'start': rule.start_time,
-                        'end': time(23, 59, 59),
+                        'start_time': rule.start_time,
+                        'end_time': time(0, 0, 0),
                         'id': rule.id,
                         'standing_charge': rule.standing_charge,
                         'minute_call_charge': rule.minute_call_charge,
@@ -45,8 +42,8 @@ class PricingRule(models.Model):
 
                 result.append(
                     {
-                        'start': time(0, 0, 0),
-                        'end': rule.end_time,
+                        'start_time': time(0, 0, 0),
+                        'end_time': rule.end_time,
                         'id': rule.id,
                         'standing_charge': rule.standing_charge,
                         'minute_call_charge': rule.minute_call_charge,
@@ -55,8 +52,8 @@ class PricingRule(models.Model):
             else:
                 result.append(
                     {
-                        'start': rule.start_time,
-                        'end': rule.end_time,
+                        'start_time': rule.start_time,
+                        'end_time': rule.end_time,
                         'id': rule.id,
                         'standing_charge': rule.standing_charge,
                         'minute_call_charge': rule.minute_call_charge,
@@ -65,61 +62,70 @@ class PricingRule(models.Model):
         return result
 
     @staticmethod
-    def prices_for_time_period(case_start, case_end):
-        """
-        Returns the tariffs for each portion of time according to price rules table
+    def prices_for_period(case_start, case_end):
+        prices = []
 
-        :param case_start: Time Start
-        :param case_end: Time End
-        """
-        result = []
-        rules = PricingRule.rules()
+        rules = PricingRule.map_day_time_rules()
 
-        for rule in rules:
+        if not rules:
+            return []
 
-            rule_start, rule_end = rule['start'], rule['end']
+        start = case_start
 
-            start = None
-            end = None
+        # Find the rule that mach with start point
+        for idx, rule in enumerate(rules):
+            if (rule['start_time'] <= start.time() < rule['end_time']) or \
+                    (rule['start_time'] <= start.time() and rule['end_time'] == time(0, 0, 0)):
+                break
 
-            if case_end < rule_start or case_start >= rule_end:
-                # The case is out of rule time box
-                continue
+        while True:
+            slice_start_datetime = start
 
-            if case_start < rule_start and case_end < rule_end:
-                # The case starts before and ends during rule time box
-                start = rule_start
-                end = case_end
+            slice_end_date = slice_start_datetime.date()
+            if rule['end_time'] == time(0, 0, 0):
+                slice_end_date += timedelta(days=1)
 
-            elif case_start < rule_start and case_end >= rule_end:
-                # The case starts before and ends after rule time box
-                start = rule_start
-                end = rule_end
+            slice_end_datetime = datetime(
+                slice_end_date.year,
+                slice_end_date.month,
+                slice_end_date.day,
+                rule['end_time'].hour,
+                rule['end_time'].minute,
+                rule['end_time'].second,
+                tzinfo=pytz.UTC
+            )
 
-            elif case_start >= rule_start and case_end < rule_end:
-                # The case starts and ends during rule time box
-                start = case_start
-                end = case_end
+            if slice_end_datetime > case_end:
+                slice_end_datetime = case_end
 
-            elif case_start >= rule_start and case_end >= rule_end:
-                # The case starts during and ends after rule time box
-                start = case_start
-                end = rule_end
-
-            prices = {
+            slice_time_price = {
                 'pricing_rule_id': rule['id'],
-                'minutes': (to_timedelta(end) - to_timedelta(start)).seconds // 60,
-                'call_charge': (to_timedelta(end) - to_timedelta(start)).seconds // 60 * rule['minute_call_charge'],
+                'start_datetime': slice_start_datetime,
+                'end_datetime': slice_end_datetime,
+                'minutes': (to_timedelta(slice_end_datetime) - to_timedelta(slice_start_datetime)).seconds // 60,
+                'call_charge': (to_timedelta(slice_end_datetime) - to_timedelta(slice_start_datetime)).seconds // 60 * rule['minute_call_charge'],
                 'standing_charge': rule['standing_charge']
             }
 
-            result.append(prices)
+            prices.append(slice_time_price)
 
-        return result
+            if slice_end_datetime == case_end:
+                break
+
+            start = slice_end_datetime
+
+            if idx == len(rules)-1:
+                idx = 0
+            else:
+                idx += 1
+
+            rule = rules[idx]
+
+        return prices
 
     @staticmethod
     def price(start_timestamp, end_timestamp):
-        prices = PricingRule.prices_for_time_period(start_timestamp.time(), end_timestamp.time())
+        prices = PricingRule.prices_for_period(start_timestamp, end_timestamp)
 
         call_charge = Decimal('0.00')
         if prices:
