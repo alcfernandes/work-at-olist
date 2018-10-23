@@ -1,3 +1,6 @@
+from datetime import datetime
+import pytz
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -325,6 +328,72 @@ class APIStartTypeCallsDetailsValidationTest(APITestCase):
             "validation_error": [
                 "Source and destination telephone number must be different."
             ]
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_start_end_type_oder_validation(self):
+        """
+        A end call detail record timestamp before than start call detail record timestamp should be rejected.
+        """
+
+        CallDetail.objects.create(
+            type=CallDetail.START,
+            timestamp=datetime(2016, 2, 29, 12, 00, 00, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.END,
+            'timestamp': datetime(2016, 2, 29, 10, 00, 00, tzinfo=pytz.UTC),
+            'call_id': 70,
+        }
+
+        expected_response = {
+            "validation_error": "The End Call Detail record must be after than the Start Call Detail record"
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_end_start_type_oder_validation(self):
+        """
+        A start call detail record timestamp after than ebd call detail record timestamp should be rejected.
+        """
+
+        CallDetail.objects.create(
+            type=CallDetail.END,
+            timestamp=datetime(2016, 2, 29, 12, 00, 00, tzinfo=pytz.UTC),
+            call_id=70,
+        )
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.START,
+            'source': "99988526423",
+            'destination': "9933468278",
+            'timestamp': datetime(2016, 2, 29, 13, 00, 00, tzinfo=pytz.UTC),
+            'call_id': 70,
+        }
+
+        expected_response = {
+            "validation_error": "The Start Call Detail record must be before than the End Call Detail record"
         }
 
         response = self.client.post('/api/call-detail/', payload)
