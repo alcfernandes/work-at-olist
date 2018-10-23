@@ -4,7 +4,7 @@ from calls.core.models.call import CallDetail, Call
 
 
 class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
-    id = serializers.IntegerField()
+    id = serializers.ReadOnlyField()
 
     def validate(self, data):
         if data['type'] == CallDetail.START and 'source' not in data:

@@ -49,7 +49,6 @@ class APIEndCallDetailCreate(APITestCase):
     def setUp(self):
 
         payload = {
-            'id': 2,
             'type': CallDetail.END,
             'timestamp': "2016-02-29T14:00:00Z",
             'call_id': 70,
@@ -62,8 +61,8 @@ class APIEndCallDetailCreate(APITestCase):
 
     def test_response(self):
         expected_response = {
-                'url': 'http://testserver/api/call-detail/2/',
-                'id': 2,
+                'url': 'http://testserver/api/call-detail/1/',
+                'id': 1,
                 'type': CallDetail.END,
                 'timestamp': "2016-02-29T14:00:00Z",
                 'source': None,
