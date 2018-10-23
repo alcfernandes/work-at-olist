@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.db.models.signals import post_save, pre_save
+from django.core.validators import ValidationError
 
 from calls.core.validators import phone_number_validator
 from calls.core.util.helpers import time_between
@@ -48,6 +49,23 @@ class CallDetail(models.Model):
     def __str__(self):
         return f'Call id:{self.call_id} - Detail id:{self.id} - {self.type} on {self.timestamp} ' \
                f'from {self.source} to {self.destination}.'
+
+    def save(self, *args, **kwargs):
+        call = Call.objects.filter(id=self.call_id)
+
+        if call and self.type == CallDetail.START \
+                and call[0].detail_end \
+                and call[0].detail_end.timestamp < self.timestamp:
+            msg = "The Start Call Detail record must be before than the End Call Detail record"
+            raise ValidationError(msg)
+
+        if call and self.type == CallDetail.END \
+                and call[0].detail_start \
+                and call[0].detail_start.timestamp > self.timestamp:
+            msg = "The End Call Detail record must be after than the Start Call Detail record"
+            raise ValidationError(msg)
+
+        super().save(*args, **kwargs)
 
 
 post_save.connect(call_detail_post_save_receiver, sender=CallDetail)

@@ -1,5 +1,9 @@
+from datetime import datetime
+import pytz
+
 from django.test import TestCase
 from django.db.utils import IntegrityError
+from django.core.validators import ValidationError
 
 from calls.core.models.call import CallDetail
 
@@ -42,6 +46,47 @@ class CallDetailModelDuplicityTest(TestCase):
             CallDetail.objects.create(
                 type=CallDetail.START,
                 timestamp="2016-02-29T16:00:00Z",
+                source="99988526423",
+                destination="9933468278",
+                call_id=70,
+            )
+
+
+class CallDetailModelDateTimeOrderValidationTest(TestCase):
+
+    def test_end_before_start_validation(self):
+        """
+        A end call detail record timestamp should be before than start call detail record timestamp
+        """
+        CallDetail.objects.create(
+            type=CallDetail.START,
+            timestamp=datetime(2016, 2, 29, 12, 00, 00, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        with self.assertRaises(ValidationError):
+            CallDetail.objects.create(
+                type=CallDetail.END,
+                timestamp=datetime(2016, 2, 29, 11, 00, 00, tzinfo=pytz.UTC),
+                call_id=70,
+            )
+
+    def test_start_after_send_validation(self):
+        """
+        A start call detail record timestamp should be after than end call detail record timestamp
+        """
+        CallDetail.objects.create(
+            type=CallDetail.END,
+            timestamp=datetime(2016, 2, 29, 11, 00, 00, tzinfo=pytz.UTC),
+            call_id=70,
+        )
+
+        with self.assertRaises(ValidationError):
+            CallDetail.objects.create(
+                type=CallDetail.START,
+                timestamp=datetime(2016, 2, 29, 12, 00, 00, tzinfo=pytz.UTC),
                 source="99988526423",
                 destination="9933468278",
                 call_id=70,
