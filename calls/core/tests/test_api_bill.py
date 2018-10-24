@@ -1,5 +1,4 @@
-from decimal import Decimal
-from datetime import datetime, time
+from datetime import datetime
 import pytz
 
 from rest_framework import status
@@ -8,39 +7,22 @@ from rest_framework.test import APITestCase
 from freezegun import freeze_time
 
 from calls.core.models.call import CallDetail
-from calls.core.models.pricing_rule import PricingRule
 
 
 class APIBillList(APITestCase):
     """
-    Should return the Telephone Bill in response a /api/bill/?subscriber=<telephone>&period=<month/year>
+    (GET) /api/bill/?subscriber=<source>&period=<MM/YYYY>
+    Should return the Subscriber Telephone Bill for the period informed
     """
+    fixtures = ['pricingrule.json']
 
     def setUp(self):
-        # Input Pricing Rules
-        PricingRule.objects.create(
-            id=1,
-            name="Standard time call",
-            start_time=time(6, 0, 0),
-            end_time=time(22, 0, 0),
-            standing_charge=Decimal(0.36),
-            minute_call_charge=Decimal(0.09),
-        )
-
-        PricingRule.objects.create(
-            id=2,
-            name="Reduced tariff time call",
-            start_time=time(22, 0, 0),
-            end_time=time(6, 0, 0),
-            standing_charge=Decimal(0.36),
-            minute_call_charge=Decimal(0.00),
-        )
 
         # Input a Detail Start Record (Reference: 08/2018)
         CallDetail.objects.create(
             id=7001,
             type=CallDetail.START,
-            timestamp=datetime(2018, 8, 29, 21, 57, 13, tzinfo=pytz.UTC),
+            timestamp=datetime(2018, 7, 31, 21, 57, 13, tzinfo=pytz.UTC),
             source="99988526423",
             destination="9933468278",
             call_id=70,
@@ -50,7 +32,7 @@ class APIBillList(APITestCase):
         CallDetail.objects.create(
             id=7002,
             type=CallDetail.END,
-            timestamp=datetime(2018, 8, 29, 22, 17, 53, tzinfo=pytz.UTC),
+            timestamp=datetime(2018, 8, 1, 22, 17, 53, tzinfo=pytz.UTC),
             call_id=70,
         )
 
@@ -76,7 +58,7 @@ class APIBillList(APITestCase):
         CallDetail.objects.create(
             id=9001,
             type=CallDetail.START,
-            timestamp=datetime(2018, 10, 29, 21, 57, 13, tzinfo=pytz.UTC),
+            timestamp=datetime(2018, 9, 29, 21, 57, 13, tzinfo=pytz.UTC),
             source="99988526423",
             destination="9933468278",
             call_id=90,
@@ -144,6 +126,26 @@ class APIBillList(APITestCase):
                 'start_time': "21:57:13",
                 'duration': "0h20m40s",
                 'price': "0.54"
+            },
+        ]
+        self.assertJSONEqual(
+            str(self.response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_response_with_start_end_different_months(self):
+        """
+        A call record belongs to the period in which the call has ended.
+
+        """
+        self.response = self.client.get('/api/bill/?subscriber=99988526423&period=08/2018')
+        expected_response = [
+            {
+                'destination': "9933468278",
+                'start_date': "2018-07-31",
+                'start_time': "21:57:13",
+                'duration': "24h20m40s",
+                'price': "86.94"
             },
         ]
         self.assertJSONEqual(

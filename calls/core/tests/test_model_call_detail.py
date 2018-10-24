@@ -9,6 +9,9 @@ from calls.core.models.call import CallDetail
 
 
 class CallDetailModelTest(TestCase):
+    """
+    Test Call Detail creation and its __str__
+    """
     def setUp(self):
         self.call_detail = CallDetail(
             id=1,
@@ -29,11 +32,11 @@ class CallDetailModelTest(TestCase):
 
 
 class CallDetailModelDuplicityTest(TestCase):
-
+    """
+    No more than one call detail record of the same type should be accepted for the same call
+    """
     def test_type_start_duplicity_same_call_id(self):
-        """
-        No more than one call detail record of the same type should be accepted for the same call
-        """
+
         CallDetail.objects.create(
             type=CallDetail.START,
             timestamp="2016-02-29T12:00:00Z",

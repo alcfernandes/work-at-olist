@@ -1,4 +1,4 @@
-from decimal import Decimal
+
 from datetime import datetime
 import pytz
 
@@ -9,7 +9,12 @@ from rest_framework.test import APITestCase
 from calls.core.models.call import CallDetail
 
 
-class APICallList(APITestCase):
+class APICallListTest(APITestCase):
+    """
+    (GET) /api/call/
+    Should return the existing Call list
+    """
+
     fixtures = ['pricingrule.json']
 
     def setUp(self):
@@ -54,6 +59,11 @@ class APICallList(APITestCase):
 
 
 class APICallRetrieve(APITestCase):
+    """
+    (GET) /api/call/<call_id>
+    Should return the Call Record
+    """
+
     fixtures = ['pricingrule.json']
 
     def setUp(self):

@@ -26,6 +26,7 @@ class PricingRule(models.Model):
     def map_day_time_rules():
 
         rules = PricingRule.objects.all()
+
         result = []
 
         for rule in rules:

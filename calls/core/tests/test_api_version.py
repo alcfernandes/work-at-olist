@@ -3,6 +3,11 @@ from rest_framework.test import APITestCase
 
 
 class APIGetVersionTest(APITestCase):
+    """
+    (GET) /api/version/
+    Should return the API Version
+    """
+
     def setUp(self):
         self.response = self.client.get('/api/version/')
 

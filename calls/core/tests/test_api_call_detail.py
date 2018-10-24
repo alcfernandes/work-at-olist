@@ -7,9 +7,68 @@ from rest_framework.test import APITestCase
 from calls.core.models.call import CallDetail
 
 
+class APICallDetailListTest(APITestCase):
+    """
+    (GET) /api/call-detail/
+    Should return the existing Call Details list
+    """
+
+    def setUp(self):
+
+        # Input a Detail Start Record (Reference: 08/2018)
+        CallDetail.objects.create(
+            type=CallDetail.START,
+            timestamp=datetime(2018, 7, 31, 21, 57, 13, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        # Input a Detail End Record (Reference: 08/2018)
+        CallDetail.objects.create(
+            type=CallDetail.END,
+            timestamp=datetime(2018, 8, 1, 22, 17, 53, tzinfo=pytz.UTC),
+            call_id=70,
+        )
+
+        self.response = self.client.get('/api/call-detail/')
+
+    def test_get(self):
+        self.assertEqual(self.response.status_code, status.HTTP_200_OK)
+
+    def test_response(self):
+        expected_response = [
+            {
+                "url": "http://testserver/api/call-detail/1/",
+                "id": 1,
+                "type": "start",
+                "timestamp": "2018-07-31T21:57:13Z",
+                "source": "99988526423",
+                "destination": "9933468278",
+                "call_id": 70
+            },
+            {
+                "url": "http://testserver/api/call-detail/2/",
+                "id": 2,
+                "type": "end",
+                "timestamp": "2018-08-01T22:17:53Z",
+                "source": None,
+                "destination": None,
+                "call_id": 70
+            }
+        ]
+
+        self.maxDiff = None
+        self.assertJSONEqual(
+            str(self.response.content, encoding='utf8'),
+            expected_response
+        )
+
+
 class APIStartCallDetailCreateTest(APITestCase):
     """
-    It should create a call start detail record when receiving a start record post in the endpoint /api/call-detail/
+    (POST) /api/call-detail/
+    It should create a call start detail record when receiving a start type record
     """
 
     def setUp(self):
@@ -46,7 +105,8 @@ class APIStartCallDetailCreateTest(APITestCase):
 
 class APIEndCallDetailCreateTest(APITestCase):
     """
-    It should create a call start detail record when receiving a end record post in the endpoint /api/call-detail/
+    (POST) /api/call-detail/
+    It should create a call start detail record when receiving a end type record
     """
 
     def setUp(self):
@@ -76,6 +136,119 @@ class APIEndCallDetailCreateTest(APITestCase):
             str(self.response.content, encoding='utf8'),
             expected_response
         )
+
+
+class APICallDetailRetrieveTest(APITestCase):
+    """
+    (GET) /api/call-detail/<call_detail_id>
+    Should return the Call Details Record
+    """
+
+    def setUp(self):
+
+        # Input a Detail Start Record (Reference: 08/2018)
+        CallDetail.objects.create(
+            type=CallDetail.START,
+            timestamp=datetime(2018, 7, 31, 21, 57, 13, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        self.response = self.client.get('/api/call-detail/1/')
+
+    def test_get(self):
+        self.assertEqual(self.response.status_code, status.HTTP_200_OK)
+
+    def test_response(self):
+        expected_response = {
+            "url": "http://testserver/api/call-detail/1/",
+            "id": 1,
+            "type": "start",
+            "timestamp": "2018-07-31T21:57:13Z",
+            "source": "99988526423",
+            "destination": "9933468278",
+            "call_id": 70
+        }
+
+        self.maxDiff = None
+        self.assertJSONEqual(
+            str(self.response.content, encoding='utf8'),
+            expected_response
+        )
+
+
+class APICallDetailUpdateTest(APITestCase):
+    """
+    (PUT) /api/call-detail/<call_detail_id>
+    Should update and return the Call Details Record
+    """
+
+    def setUp(self):
+
+        CallDetail.objects.create(
+            type=CallDetail.START,
+            timestamp=datetime(2018, 7, 31, 21, 57, 13, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        payload = {
+            'type': CallDetail.START,
+            'timestamp': "2016-02-20T12:00:00Z",
+            'source': "99988526423",
+            'destination': "9933468278",
+            'call_id': 70,
+        }
+
+        self.response = self.client.put('/api/call-detail/1/', payload)
+
+    def test_get(self):
+        self.assertEqual(self.response.status_code, status.HTTP_200_OK)
+
+    def test_response(self):
+        expected_response = {
+            "url": "http://testserver/api/call-detail/1/",
+            "id": 1,
+            "type": "start",
+            "timestamp": "2016-02-20T12:00:00Z",
+            "source": "99988526423",
+            "destination": "9933468278",
+            "call_id": 70
+        }
+
+        self.maxDiff = None
+        self.assertJSONEqual(
+            str(self.response.content, encoding='utf8'),
+            expected_response
+        )
+
+
+class APICallDetailDeleteTest(APITestCase):
+    """
+    (DEL) /api/call-detail/<call_detail_id>
+    Should delete the Call Details Record
+    """
+
+    def setUp(self):
+
+        self.start_detail = CallDetail.objects.create(
+            id=1,
+            type=CallDetail.START,
+            timestamp=datetime(2016, 2, 29, 12, 00, 00, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        self.response = self.client.delete('/api/call-detail/1/')
+
+    def test_get(self):
+        self.assertEqual(self.response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete(self):
+        self.assertFalse(CallDetail.objects.exists(), msg="The Call detail should be deleted")
 
 
 class APIStartTypeCallsDetailsValidationTest(APITestCase):
@@ -312,7 +485,7 @@ class APIStartTypeCallsDetailsValidationTest(APITestCase):
 
     def test_on_start_type_calls_details_source_and_destination_must_be_different(self):
         """
-        Equals source and destination telephone number must be rejected.
+        The same phone number for source and destination should be rejected
         """
 
         payload = {
@@ -410,7 +583,7 @@ class APIEndTypeCallsDetailsValidationTest(APITestCase):
 
     def test_on_end_type_calls_details_source_and_destination_are_not_required(self):
         """
-        For an end-type call detail record, source and destination fields should not be required
+        For an end type call detail record, source and destination fields should not be required
         """
 
         payload = {
@@ -439,7 +612,7 @@ class APIEndTypeCallsDetailsValidationTest(APITestCase):
 
     def test_on_end_type_calls_details_source_is_not_expected(self):
         """
-        A end-type Call Detail Record should not have a source telephone number.
+        An end type Call Detail Record should not have a source telephone number.
         """
 
         payload = {
@@ -467,7 +640,7 @@ class APIEndTypeCallsDetailsValidationTest(APITestCase):
 
     def test_on_end_type_calls_details_destination_is_not_expected(self):
         """
-        A end-type Call Detail Record should not have a destination telephone number.
+        An end type Call Detail Record should not have a destination telephone number.
         """
 
         payload = {
@@ -532,24 +705,3 @@ class APICallDetailCreateUniqueTypeCallValidation(APITestCase):
             expected_response
         )
 
-
-class APICallDetailDeleteTest(APITestCase):
-
-    def setUp(self):
-
-        self.start_detail = CallDetail.objects.create(
-            id=1,
-            type=CallDetail.START,
-            timestamp=datetime(2016, 2, 29, 12, 00, 00, tzinfo=pytz.UTC),
-            source="99988526423",
-            destination="9933468278",
-            call_id=70,
-        )
-
-        self.response = self.client.delete('/api/call-detail/1/')
-
-    def test_get(self):
-        self.assertEqual(self.response.status_code, status.HTTP_204_NO_CONTENT)
-
-    def test_delete(self):
-        self.assertFalse(CallDetail.objects.exists(), msg="The Call detail should be deleted")

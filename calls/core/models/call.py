@@ -122,14 +122,18 @@ class Call(models.Model):
         """
         Creates, updates the call record based on the call detail record
         """
-        if not Call.objects.filter(id=call_detail.call_id).exists():
+        call_id = call_detail.call_id
+
+        if not Call.objects.filter(id=call_id).exists():
+            # Call already exists
             Call.objects.create(
-                id=call_detail.call_id,
+                id=call_id,
                 detail_start=call_detail if call_detail.type == CallDetail.START else None,
                 detail_end=call_detail if call_detail.type == CallDetail.END else None,
             )
         else:
-            call = Call.objects.get(id=call_detail.call_id)
+            # Call does not exist yet
+            call = Call.objects.get(id=call_id)
             if call_detail.type == CallDetail.START:
                 call.detail_start = call_detail
             else:
@@ -141,11 +145,18 @@ class Call(models.Model):
         """
         Delete/Update the call record based on the call detail record
         """
-        if Call.objects.filter(id=call_detail.call_id).exists():
-            call = Call.objects.get(id=call_detail.call_id)
-            if ((call_detail.type == CallDetail.START) and call.detail_end is None) or ((call_detail.type == CallDetail.END) and call.detail_start is None):
+        call_id = call_detail.call_id
+
+        if Call.objects.filter(id=call_id).exists():
+
+            call = Call.objects.get(id=call_id)
+
+            if (call_detail.type == CallDetail.START and call.detail_end is None) \
+                    or (call_detail.type == CallDetail.END and call.detail_start is None):
+                # If both, Start Call Detail and the End Call Detail do not exist, the Call must be deleted.
                 call.delete()
             else:
+                # Just one Call Detail was deleted, the Call should not be deleted
                 if call_detail.type == CallDetail.START:
                     call.detail_start = None
                 else:

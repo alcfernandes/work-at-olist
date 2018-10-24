@@ -7,7 +7,6 @@ from calls.core.api.viewsets import ApiVersion, CallDetailViewSet, BillViewSet, 
 
 app_name = 'core'
 
-# Create a router and register our viewsets with it.
 router = DefaultRouter()
 router.register('version', ApiVersion, base_name='version')
 router.register('call-detail', CallDetailViewSet)

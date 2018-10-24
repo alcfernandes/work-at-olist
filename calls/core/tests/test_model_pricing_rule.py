@@ -9,27 +9,6 @@ from django.test import TestCase
 from calls.core.models.pricing_rule import PricingRule
 
 
-def create_default_pricing_rules(self):
-
-    self.standard_tariff = PricingRule.objects.create(
-        id=1,
-        name="Standard time call",
-        start_time=time(6, 0, 0),
-        end_time=time(22, 0, 0),
-        standing_charge=Decimal(0.36),
-        minute_call_charge=Decimal(0.09),
-    )
-
-    PricingRule.objects.create(
-        id=2,
-        name="Reduced tariff time call",
-        start_time=time(22, 0, 0),
-        end_time=time(6, 0, 0),
-        standing_charge=Decimal(0.36),
-        minute_call_charge=Decimal(0.01),
-    )
-
-
 class PricingRuleModelTest(TestCase):
     def setUp(self):
         self.rule = PricingRule(
@@ -51,9 +30,9 @@ class PricingRuleModelTest(TestCase):
 
 class MapDayTimeRulesMethodTest(TestCase):
     """
-    Should returns the pricing rules, breaking time bands
-    that pass from one day to another (eg 22:00 to 06:00), one for each day
-    eg (22:00 to 06:00) => (22:00 to 23:59 and 00:00 to 06:00)
+    The helper method PricingRule.map_day_time_rules() should returns the pricing rules,
+    breaking time bands that pass from one day to another (eg 22:00 to 06:00),
+    one for each day eg (22:00 to 06:00) => (22:00 to 23:59 and 00:00 to 06:00)
     """
     def test_rules_method_case_1(self):
         """
@@ -158,11 +137,27 @@ class MapDayTimeRulesMethodTest(TestCase):
 
 class PrincesForPeriodMethodTest(TestCase):
     """
-    Given an initial start time and end time, the method 'prices_for_time_period' must return
-    the tariff corresponding to each period of time registered in the rules of prices.
+    The helper method PricingRule.prices_for_period(), given an initial start datetime and end datetime,
+    must return the tariff corresponding to each time period registered in the pricing rules.
     """
     def setUp(self):
-        create_default_pricing_rules(self)
+        self.standard_tariff = PricingRule.objects.create(
+            id=1,
+            name="Standard time call",
+            start_time=time(6, 0, 0),
+            end_time=time(22, 0, 0),
+            standing_charge=Decimal(0.36),
+            minute_call_charge=Decimal(0.09),
+        )
+
+        PricingRule.objects.create(
+            id=2,
+            name="Reduced tariff time call",
+            start_time=time(22, 0, 0),
+            end_time=time(6, 0, 0),
+            standing_charge=Decimal(0.36),
+            minute_call_charge=Decimal(0.01),  # Sets a value to verify that this rule is being used correctly
+        )
 
     def test_prices_for_period_method_case_1(self):
         """

@@ -13,6 +13,9 @@ from calls.core.models.pricing_rule import PricingRule
 
 
 class CallModelTest(TestCase):
+    """
+    Test Call creation and its __str__
+    """
     def setUp(self):
 
         detail_start = mommy.make(CallDetail, type=CallDetail.START)
@@ -33,7 +36,12 @@ class CallModelTest(TestCase):
         self.assertEqual("Call 70", str(self.call))
 
 
-class CallModelDeleteTest(TestCase):
+class CallModelAutomaticCreationAndDeletionTest(TestCase):
+    """
+    Call records are automatically created when Call Detail Records are created and
+    are automatically deleted when their Call Detail Records are deleted.
+    """
+
     fixtures = ['pricingrule.json']
 
     def setUp(self):
@@ -55,21 +63,31 @@ class CallModelDeleteTest(TestCase):
             call_id=70,
         )
 
-    def test_delete_call(self):
-        self.assertTrue(Call.objects.exists(), msg="A Call record should be created")
+    def test_call_should_be_created(self):
+        self.assertTrue(Call.objects.filter(id=70).exists(), msg="A Call record should be created")
+
+    def test_delete_call_should_not_delete_details_records(self):
         Call.objects.get(id=70).delete()
         self.assertFalse(Call.objects.exists(), msg="A Call record should be deleted")
         self.assertTrue(CallDetail.objects.exists(), msg="Call Details record should not be deleted")
 
-    def test_delete_Start_call_detail(self):
+    def test_delete_just_start_call_detail_should_not_delete_call(self):
         self.start_detail.delete()
         self.assertEqual(CallDetail.objects.count(), 1, msg="Just one Call Detail record should be deleted")
         self.assertTrue(Call.objects.exists(), msg="The Call record should not be deleted")
         self.assertIsNone(Call.objects.get(id=70).detail_start, msg="Start Call detail should be none")
         self.assertIsNotNone(Call.objects.get(id=70).detail_end, msg="End Call detail should not be none")
-        self.assertEqual(Call.objects.get(id=70).price, Decimal('0.00'), msg="The price should be clean")
+        self.assertEqual(Call.objects.get(id=70).price, Decimal('0.00'), msg="The call price should be clean")
 
-    def test_delete_both_call_details(self):
+    def test_delete_just_end_call_detail_should_not_delete_call(self):
+        self.end_detail.delete()
+        self.assertEqual(CallDetail.objects.count(), 1, msg="Just one Call Detail record should be deleted")
+        self.assertTrue(Call.objects.exists(), msg="The Call record should not be deleted")
+        self.assertIsNone(Call.objects.get(id=70).detail_end, msg="End Call detail should be none")
+        self.assertIsNotNone(Call.objects.get(id=70).detail_start, msg="Start Call detail should not be none")
+        self.assertEqual(Call.objects.get(id=70).price, Decimal('0.00'), msg="The call price should be clean")
+
+    def test_delete_both_call_details_should_delete_call(self):
         self.start_detail.delete()
         self.end_detail.delete()
         self.assertFalse(CallDetail.objects.exists(), msg="Call Details record should be deleted")
@@ -177,22 +195,7 @@ class CallDurationCalculationTest(TestCase):
 
 
 class CallPriceCalculationTest(TestCase):
-    def setUp(self):
-        self.pricing = PricingRule.objects.create(
-            name="Standard time call",
-            start_time=time(6, 0, 0),
-            end_time=time(22, 0, 0),
-            standing_charge=Decimal(0.36),
-            minute_call_charge=Decimal(0.09),
-        )
-
-        self.pricing = PricingRule.objects.create(
-            name="Reduced tariff time call",
-            start_time=time(22, 0, 0),
-            end_time=time(6, 0, 0),
-            standing_charge=Decimal(0.36),
-            minute_call_charge=Decimal(0.00),
-        )
+    fixtures = ['pricingrule.json']
 
     def test_calculate_after_receiving_start_and_end_records(self):
         """
@@ -288,36 +291,11 @@ class CallPriceCalculationTest(TestCase):
         expected_price = Decimal('0.54')
         self.assertEqual(expected_price, call.price, msg="Should calculate the call price.")
 
-    def test_price_calculate_case_sample_6(self):
-        """
-        Case 6: Start: 2017-12-12 21:57:13 End: 2017-12-13 22:10:56.
-        """
-        # Input a Detail Start Record
-        CallDetail.objects.create(
-            id=7001,
-            type=CallDetail.START,
-            timestamp=datetime(2017, 12, 12, 21, 57, 13, tzinfo=pytz.UTC),
-            source="99988526423",
-            destination="9933468278",
-            call_id=75,
-        )
-
-        # Input a Detail End Record
-        CallDetail.objects.create(
-            id=7002,
-            type=CallDetail.END,
-            timestamp=datetime(2017, 12, 13, 22, 10, 56, tzinfo=pytz.UTC),
-            call_id=75,
-        )
-
-        self.assertEqual(Call.objects.filter(id=75).count(), 1, msg="Should create one Call record.")
-        call = Call.objects.get(id=75)
-
-        expected_price = Decimal('86.94')
-        self.assertEqual(expected_price, call.price, msg="Should calculate the call price.")
-
 
 class SampleCasesCalculationTest(TestCase):
+    """
+    Test price calculation to all sample cases
+    """
     def setUp(self):
         self.pricing = PricingRule.objects.create(
             name="Standard time call",
@@ -332,7 +310,7 @@ class SampleCasesCalculationTest(TestCase):
             start_time=time(22, 0, 0),
             end_time=time(6, 0, 0),
             standing_charge=Decimal(0.36),
-            minute_call_charge=Decimal(0.01),
+            minute_call_charge=Decimal(0.01),   # Sets a value to verify that this rule is being used correctly.
         )
 
     def test_case_sample_1(self):
