@@ -2,7 +2,7 @@
 # Call: 70 ##########################################
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -14,7 +14,7 @@ curl -X POST \
 }'
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -26,7 +26,7 @@ curl -X POST \
 # Call: 71 ##########################################
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -38,7 +38,7 @@ curl -X POST \
 }'
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -50,7 +50,7 @@ curl -X POST \
 # Call: 72 ##########################################
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -62,7 +62,7 @@ curl -X POST \
 }'
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -74,7 +74,7 @@ curl -X POST \
 # Call: 73 ##########################################
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -86,7 +86,7 @@ curl -X POST \
 }'
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -98,7 +98,7 @@ curl -X POST \
 # Call: 74 ##########################################
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -110,7 +110,7 @@ curl -X POST \
 }'
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -122,7 +122,7 @@ curl -X POST \
 # Call: 75 ##########################################
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -134,7 +134,7 @@ curl -X POST \
 }'
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -146,7 +146,7 @@ curl -X POST \
 # Call: 76 ##########################################
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -158,7 +158,7 @@ curl -X POST \
 }'
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -170,7 +170,7 @@ curl -X POST \
 # Call: 77 ##########################################
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{
@@ -182,7 +182,7 @@ curl -X POST \
 }'
 
 curl -X POST \
-  http://127.0.0.1:8000/api/call-detail/ \
+  https://olist-calls-dev.herokuapp.com/api/call-detail/ \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d '{

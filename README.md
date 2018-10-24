@@ -45,3 +45,343 @@ python manage.py runserver
 
 
 ## API Documentation
+
+### Call Detail Record
+
+#### List Call Detail records
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/call-detail/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+[
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+        "id": 1,
+        "type": "start",
+        "timestamp": "2016-02-29T12:00:00Z",
+        "source": "99988526423",
+        "destination": "9933468278",
+        "call_id": 70
+    },
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/2/",
+        "id": 2,
+        "type": "end",
+        "timestamp": "2016-02-29T14:00:00Z",
+        "source": null,
+        "destination": null,
+        "call_id": 70
+    }
+]
+````
+
+
+#### Create Start Call Detail Record
+```console
+(POST) https://olist-calls-pro.herokuapp.com/api/call-detail/
+```
+cURL:
+````console
+curl -X POST \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{
+    "type": "start",
+    "timestamp": "2016-02-29T12:00:00Z",
+    "source": "99988526423",
+    "destination": "9933468278",
+    "call_id": 70    
+}'
+````
+Result:
+
+````console
+(201 Created)
+{
+    "url": "https://olist-calls-prod.herokuapp.com/api/call-detail/17/",
+    "id": 17,
+    "type": "start",
+    "timestamp": "2016-02-29T12:00:00Z",
+    "source": "99988526423",
+    "destination": "9933468278",
+    "call_id": 70
+}
+
+````
+
+#### Create End Call Detail Record
+```console
+(POST) https://olist-calls-pro.herokuapp.com/api/call-detail/
+```
+cURL:
+````console
+curl -X POST \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{
+    "type": "end",
+    "timestamp": "2016-02-29T14:00:00Z",
+    "call_id": 70    
+}'
+````
+Result:
+
+````console
+(201 Created)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/18/",
+    "id": 18,
+    "type": "end",
+    "timestamp": "2016-02-29T14:00:00Z",
+    "source": null,
+    "destination": null,
+    "call_id": 70
+}
+
+````
+
+#### List Call Detail records
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/call-detail/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+[
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+        "id": 1,
+        "type": "start",
+        "timestamp": "2016-02-29T12:00:00Z",
+        "source": "99988526423",
+        "destination": "9933468278",
+        "call_id": 70
+    },
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/2/",
+        "id": 2,
+        "type": "end",
+        "timestamp": "2016-02-29T14:00:00Z",
+        "source": null,
+        "destination": null,
+        "call_id": 70
+    }
+]
+
+````
+
+#### Retrieve a  Call Detail records
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/call-detail/1/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+    "id": 1,
+    "type": "start",
+    "timestamp": "2016-02-29T12:00:00Z",
+    "source": "99988526423",
+    "destination": "9933468278",
+    "call_id": 70
+}
+````
+
+#### Update a Call Detail Record
+
+```console
+(PUT) https://olist-calls-pro.herokuapp.com/api/call-detail/1/
+```
+cURL:
+
+````console
+curl -X PUT \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{
+    "type": "start",
+    "timestamp": "2016-02-29T10:00:00Z",
+    "source": "99988526423",
+    "destination": "9933468278",
+    "call_id": 70    
+}'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+    "id": 1,
+    "type": "start",
+    "timestamp": "2016-02-29T10:00:00Z",
+    "source": "99988526423",
+    "destination": "9933468278",
+    "call_id": 70
+}
+
+````
+
+#### Delete a Call Detail Record
+```console
+(DEL) https://olist-calls-pro.herokuapp.com/api/call-detail/1/
+```
+cURL:
+
+````console
+curl -X DELETE \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(204 No Content)
+````
+
+### Call
+
+#### List Call records
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/call/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/call/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+[
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/call/70/",
+        "id": 70,
+        "detail_start": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+        "detail_end": "https://olist-calls-pro.herokuapp.com/api/call-detail/2/",
+        "duration": "2h0m0s",
+        "price": "11.16"
+    }
+]
+````
+
+#### Retrieve a Call record
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/call/70/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/call/70/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/call/70/",
+    "id": 70,
+    "detail_start": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+    "detail_end": "https://olist-calls-pro.herokuapp.com/api/call-detail/2/",
+    "duration": "2h0m0s",
+    "price": "11.16"
+}
+````
+
+### Bill
+
+#### Get a Subscriber Bill
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/bill/?subscriber=99988526423&period=02/2016
+```
+cURL:
+
+````console
+curl -X GET \
+  'https://olist-calls-pro.herokuapp.com/api/bill/?subscriber=99988526423&period=02/2016' \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+[
+    {
+        "destination": "9933468278",
+        "start_date": "2016-02-29",
+        "start_time": "12:00:00",
+        "duration": "2h0m0s",
+        "price": "11.16"
+    },
+    {
+        "destination": "9933468278",
+        "start_date": "2016-02-29",
+        "start_time": "12:00:00",
+        "duration": "2h0m0s",
+        "price": "11.16"
+    }
+]
+````
+
+### Pricing Rules
+
+The price rule table can be changed by Django Admin.
+
+```console
+https://olist-calls-pro.herokuapp.com/admin/
+```
+
+|   |    |
+|---|---|
+|  Login |   olist |
+|  Password | olist2018 |
+
+
