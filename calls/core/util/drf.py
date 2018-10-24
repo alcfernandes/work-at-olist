@@ -29,6 +29,9 @@ def exception_handler(exc, context):
     """
 
     if isinstance(exc, DjangoValidationError):
-        exc = DRFValidationError(detail=exc.message_dict)
+        try:
+            exc = DRFValidationError(detail=exc.message_dict)
+        except AttributeError:
+            exc = DRFValidationError(detail={"validation_error": exc.message})
 
     return drf_exception_handler(exc, context)

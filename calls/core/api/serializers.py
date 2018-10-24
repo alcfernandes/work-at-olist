@@ -1,12 +1,14 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from calls.core.models.call import CallDetail, Call
 
 
 class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
-    id = serializers.IntegerField()
+    id = serializers.ReadOnlyField()
 
     def validate(self, data):
+
         if data['type'] == CallDetail.START and 'source' not in data:
             raise serializers.ValidationError("A start-type call detail record must have a source telephone number.")
 
@@ -20,6 +22,10 @@ class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
         if data['type'] == CallDetail.END and 'destination' in data:
             raise serializers.ValidationError("A end-type call detail record should not have a destination telephone "
                                               "number.")
+
+        if data['type'] == CallDetail.START and data['destination'] == data['source']:
+            raise serializers.ValidationError("Source and destination telephone number must be different.")
+
         return data
 
     class Meta:
@@ -34,8 +40,32 @@ class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
             'call_id'
         )
 
+        validators = [
+            UniqueTogetherValidator(
+                queryset=CallDetail.objects.all(),
+                fields=('type', 'call_id'),
+                message='A detail record with this type and call id has already been sent. Delete it before resend it.',
+            )
+        ]
 
-class CallSerializer(serializers.ModelSerializer):
+
+class CallSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Call
+        fields = (
+            'url',
+            'id',
+            'detail_start',
+            'detail_end',
+            'duration',
+            'price',
+
+        )
+
+
+class BillSerializer(serializers.ModelSerializer):
     destination = serializers.SerializerMethodField()
     start_date = serializers.SerializerMethodField()
     start_time = serializers.SerializerMethodField()

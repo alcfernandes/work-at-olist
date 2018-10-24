@@ -33,6 +33,49 @@ class CallModelTest(TestCase):
         self.assertEqual("Call 70", str(self.call))
 
 
+class CallModelDeleteTest(TestCase):
+    fixtures = ['pricingrule.json']
+
+    def setUp(self):
+        # Input a Detail Start Record
+        self.start_detail = CallDetail.objects.create(
+            id=7001,
+            type=CallDetail.START,
+            timestamp=datetime(2016, 2, 29, 21, 57, 13, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        # Input a Detail End Record
+        self.end_detail = CallDetail.objects.create(
+            id=7002,
+            type=CallDetail.END,
+            timestamp=datetime(2016, 2, 29, 22, 17, 53, tzinfo=pytz.UTC),
+            call_id=70,
+        )
+
+    def test_delete_call(self):
+        self.assertTrue(Call.objects.exists(), msg="A Call record should be created")
+        Call.objects.get(id=70).delete()
+        self.assertFalse(Call.objects.exists(), msg="A Call record should be deleted")
+        self.assertTrue(CallDetail.objects.exists(), msg="Call Details record should not be deleted")
+
+    def test_delete_Start_call_detail(self):
+        self.start_detail.delete()
+        self.assertEqual(CallDetail.objects.count(), 1, msg="Just one Call Detail record should be deleted")
+        self.assertTrue(Call.objects.exists(), msg="The Call record should not be deleted")
+        self.assertIsNone(Call.objects.get(id=70).detail_start, msg="Start Call detail should be none")
+        self.assertIsNotNone(Call.objects.get(id=70).detail_end, msg="End Call detail should not be none")
+        self.assertEqual(Call.objects.get(id=70).price, Decimal('0.00'), msg="The price should be clean")
+
+    def test_delete_both_call_details(self):
+        self.start_detail.delete()
+        self.end_detail.delete()
+        self.assertFalse(CallDetail.objects.exists(), msg="Call Details record should be deleted")
+        self.assertFalse(Call.objects.exists(), msg="The Call record should be deleted")
+
+
 class CallDurationCalculationTest(TestCase):
     def test_duration_after_receiving_start_and_end_records(self):
         """
