@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 from calls.core.models.call import CallDetail
 
 
-class APIStartCallDetailCreate(APITestCase):
+class APIStartCallDetailCreateTest(APITestCase):
     """
     It should create a call start detail record when receiving a start record post in the endpoint /api/call-detail/
     """
@@ -44,7 +44,7 @@ class APIStartCallDetailCreate(APITestCase):
         )
 
 
-class APIEndCallDetailCreate(APITestCase):
+class APIEndCallDetailCreateTest(APITestCase):
     """
     It should create a call start detail record when receiving a end record post in the endpoint /api/call-detail/
     """
@@ -531,3 +531,25 @@ class APICallDetailCreateUniqueTypeCallValidation(APITestCase):
             str(self.response.content, encoding='utf8'),
             expected_response
         )
+
+
+class APICallDetailDeleteTest(APITestCase):
+
+    def setUp(self):
+
+        self.start_detail = CallDetail.objects.create(
+            id=1,
+            type=CallDetail.START,
+            timestamp=datetime(2016, 2, 29, 12, 00, 00, tzinfo=pytz.UTC),
+            source="99988526423",
+            destination="9933468278",
+            call_id=70,
+        )
+
+        self.response = self.client.delete('/api/call-detail/1/')
+
+    def test_get(self):
+        self.assertEqual(self.response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete(self):
+        self.assertFalse(CallDetail.objects.exists(), msg="The Call detail should be deleted")

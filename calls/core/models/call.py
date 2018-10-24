@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.db import models
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, pre_delete
 from django.core.validators import ValidationError, MinLengthValidator
 
 from calls.core.validators import phone_number_validator
@@ -10,7 +10,11 @@ from calls.core.models.pricing_rule import PricingRule
 
 
 def call_detail_post_save_receiver(instance, *_args, **_kwargs):
-    Call.update(instance)
+    Call.update_detail(instance)
+
+
+def call_detail_pre_delete_receiver(instance, *_args, **_kwargs):
+    Call.delete_detail(instance)
 
 
 class CallDetail(models.Model):
@@ -69,6 +73,7 @@ class CallDetail(models.Model):
 
 
 post_save.connect(call_detail_post_save_receiver, sender=CallDetail)
+pre_delete.connect(call_detail_pre_delete_receiver, sender=CallDetail)
 
 
 def call_pre_save_receiver(instance, *_args, **_kwargs):
@@ -79,14 +84,14 @@ class Call(models.Model):
 
     detail_start = models.ForeignKey(
         CallDetail,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="call_start",
         blank=True,
         null=True
     )
     detail_end = models.ForeignKey(
         CallDetail,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="call_end",
         blank=True,
         null=True
@@ -105,6 +110,7 @@ class Call(models.Model):
         return time_between(self.detail_start.timestamp, self.detail_end.timestamp)
 
     def calculate_price(self):
+
         if not (self.detail_start and self.detail_end):
             self.price = Decimal('0.00')
             return
@@ -112,11 +118,10 @@ class Call(models.Model):
         self.price = PricingRule.price(self.detail_start.timestamp, self.detail_end.timestamp)
 
     @staticmethod
-    def update(call_detail):
+    def update_detail(call_detail):
         """
-        Creates or updates the call record based on the call detail record
+        Creates, updates the call record based on the call detail record
         """
-
         if not Call.objects.filter(id=call_detail.call_id).exists():
             Call.objects.create(
                 id=call_detail.call_id,
@@ -130,6 +135,23 @@ class Call(models.Model):
             else:
                 call.detail_end = call_detail
             call.save()
+
+    @staticmethod
+    def delete_detail(call_detail):
+        """
+        Delete/Update the call record based on the call detail record
+        """
+        if Call.objects.filter(id=call_detail.call_id).exists():
+            call = Call.objects.get(id=call_detail.call_id)
+            if ((call_detail.type == CallDetail.START) and call.detail_end is None) or ((call_detail.type == CallDetail.END) and call.detail_start is None):
+                call.delete()
+            else:
+                if call_detail.type == CallDetail.START:
+                    call.detail_start = None
+                else:
+                    call.detail_end = None
+
+                call.save()
 
 
 pre_save.connect(call_pre_save_receiver, sender=Call)
