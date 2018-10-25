@@ -27,7 +27,7 @@ git clone https://github.com/alcfernandes/work-at-olist.git work-at-olist
 cd work-at-olist/
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requerements-dev.txt
+pip install -r requirements-dev.txt
 cp contrib/env-sample .env
 python manage.py migrate
 python manage.py test
