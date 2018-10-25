@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from freezegun import freeze_time
 
-from calls.core.util.helpers import time_between, current_month_year
+from calls.core.util.helpers import time_between, current_month_year, last_month_year
 
 
 class TimeBetweenTest(TestCase):
@@ -37,7 +37,6 @@ class TimeBetweenTest(TestCase):
 class CurrentMonthYearTest(TestCase):
     """
     CurrentMonthYear() should return a date and time corresponding to the first day of the current month and year
-    e.g. 0h35m42s
     """
     @freeze_time('2018-11-10')
     def test_current_month_year(self):
@@ -45,3 +44,19 @@ class CurrentMonthYearTest(TestCase):
         result = current_month_year()
         self.assertEqual(expected_result, result)
 
+
+class LastMonthYearTest(TestCase):
+    """
+    LastMonthYear() should return a date and time corresponding to the first day of the last month and year
+    """
+    @freeze_time('2018-11-10')
+    def test_last_month_year(self):
+        expected_result = datetime(2018, 10, 1)
+        result = last_month_year()
+        self.assertEqual(expected_result, result)
+
+    @freeze_time('2018-01-10')
+    def test_last_month_year_when_january(self):
+        expected_result = datetime(2017, 12, 1)
+        result = last_month_year()
+        self.assertEqual(expected_result, result)

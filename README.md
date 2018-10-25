@@ -316,22 +316,19 @@ Result:
 
 ````console
 (200 OK)
-[
-    {
-        "destination": "9933468278",
-        "start_date": "2016-02-29",
-        "start_time": "12:00:00",
-        "duration": "2h0m0s",
-        "price": "11.16"
-    },
-    {
-        "destination": "9933468278",
-        "start_date": "2016-02-29",
-        "start_time": "12:00:00",
-        "duration": "2h0m0s",
-        "price": "11.16"
-    }
-]
+{
+    "subscriber": "99988526423",
+    "period": "02/2016",
+    "calls": [
+        {
+            "destination": "9933468278",
+            "start_date": "2016-02-29",
+            "start_time": "12:00:00",
+            "duration": "2h0m0s",
+            "price": "11.16"
+        }
+    ]
+}
 ````
 
 ### Pricing Rules

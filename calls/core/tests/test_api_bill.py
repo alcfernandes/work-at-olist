@@ -99,15 +99,21 @@ class APIBillList(APITestCase):
 
     def test_response_with_period(self):
         self.response = self.client.get('/api/bill/?subscriber=99988526423&period=09/2018')
-        expected_response = [
-            {
-                'destination': "9933468278",
-                'start_date': "2018-09-29",
-                'start_time': "21:57:13",
-                'duration': "0h20m40s",
-                'price': "0.54"
-            },
-        ]
+
+        expected_response = {
+            "subscriber": "99988526423",
+            "period": "09/2018",
+            "calls": [
+                {
+                    "destination": "9933468278",
+                    "start_date": "2018-09-29",
+                    "start_time": "21:57:13",
+                    "duration": "0h20m40s",
+                    "price": "0.54"
+                }
+            ]
+        }
+
         self.assertJSONEqual(
             str(self.response.content, encoding='utf8'),
             expected_response
@@ -119,15 +125,21 @@ class APIBillList(APITestCase):
         Without period parameter should return the last month bill (09/2018).
         """
         self.response = self.client.get('/api/bill/?subscriber=99988526423')
-        expected_response = [
-            {
-                'destination': "9933468278",
-                'start_date': "2018-09-29",
-                'start_time': "21:57:13",
-                'duration': "0h20m40s",
-                'price': "0.54"
-            },
-        ]
+
+        expected_response = {
+            "subscriber": "99988526423",
+            "period": "09/2018",
+            "calls": [
+                {
+                    "destination": "9933468278",
+                    "start_date": "2018-09-29",
+                    "start_time": "21:57:13",
+                    "duration": "0h20m40s",
+                    "price": "0.54"
+                }
+            ]
+        }
+
         self.assertJSONEqual(
             str(self.response.content, encoding='utf8'),
             expected_response
@@ -139,15 +151,21 @@ class APIBillList(APITestCase):
 
         """
         self.response = self.client.get('/api/bill/?subscriber=99988526423&period=08/2018')
-        expected_response = [
-            {
-                'destination': "9933468278",
-                'start_date': "2018-07-31",
-                'start_time': "21:57:13",
-                'duration': "24h20m40s",
-                'price': "86.94"
-            },
-        ]
+
+        expected_response = {
+            "subscriber": "99988526423",
+            "period": "08/2018",
+            "calls": [
+                {
+                    "destination": "9933468278",
+                    "start_date": "2018-07-31",
+                    "start_time": "21:57:13",
+                    "duration": "24h20m40s",
+                    "price": "86.94"
+                }
+            ]
+        }
+
         self.assertJSONEqual(
             str(self.response.content, encoding='utf8'),
             expected_response
