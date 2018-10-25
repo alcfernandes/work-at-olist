@@ -157,47 +157,7 @@ Result:
 
 ````
 
-#### List Call Detail records
-
-```console
-(GET) https://olist-calls-pro.herokuapp.com/api/call-detail/
-```
-cURL:
-
-````console
-curl -X GET \
-  https://olist-calls-pro.herokuapp.com/api/call-detail/ \
-  -H 'Content-Type: application/json' \
-  -H 'cache-control: no-cache'
-````
-Result:
-
-````console
-(200 OK)
-[
-    {
-        "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
-        "id": 1,
-        "type": "start",
-        "timestamp": "2016-02-29T12:00:00Z",
-        "source": "99988526423",
-        "destination": "9933468278",
-        "call_id": 70
-    },
-    {
-        "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/2/",
-        "id": 2,
-        "type": "end",
-        "timestamp": "2016-02-29T14:00:00Z",
-        "source": null,
-        "destination": null,
-        "call_id": 70
-    }
-]
-
-````
-
-#### Retrieve a  Call Detail records
+#### Retrieve a Call Detail record
 
 ```console
 (GET) https://olist-calls-pro.herokuapp.com/api/call-detail/1/
@@ -376,7 +336,166 @@ Result:
 
 ### Pricing Rules
 
-The price rule table can be changed by Django Admin.
+#### List Pricing Rules records
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/pricing/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/pricing/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+[
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/pricing/1/",
+        "id": 1,
+        "name": "Standard time call",
+        "start_time": "06:00:00",
+        "end_time": "22:00:00",
+        "standing_charge": "0.36",
+        "minute_call_charge": "0.09"
+    },
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/pricing/2/",
+        "id": 2,
+        "name": "Reduced tariff time call",
+        "start_time": "22:00:00",
+        "end_time": "06:00:00",
+        "standing_charge": "0.36",
+        "minute_call_charge": "0.00"
+    }
+]
+````
+
+
+#### Create Pricing Rule Record
+```console
+(POST) https://olist-calls-pro.herokuapp.com/api/pricing/
+```
+cURL:
+````console
+curl -X POST \
+  https://olist-calls-pro.herokuapp.com/api/pricing/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{
+        "name": "Standard time call",
+        "start_time": "06:00:00",
+        "end_time": "22:00:00",
+        "standing_charge": "0.36",
+        "minute_call_charge": "0.09"
+}'
+````
+Result:
+
+````console
+(201 Created)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/pricing/1/",
+    "id": 1,
+    "name": "Standard time call",
+    "start_time": "06:00:00",
+    "end_time": "22:00:00",
+    "standing_charge": "0.36",
+    "minute_call_charge": "0.09"
+}
+
+````
+
+#### Retrieve a Pricing Rule record
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/pricing/1/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/pricing/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/pricing/1/",
+    "id": 1,
+    "name": "Standard time call",
+    "start_time": "06:00:00",
+    "end_time": "22:00:00",
+    "standing_charge": "0.36",
+    "minute_call_charge": "0.09"
+}
+````
+
+#### Update a Pricing Rule Record
+
+```console
+(PUT) https://olist-calls-pro.herokuapp.com/api/pricing/1/
+```
+cURL:
+
+````console
+curl -X PUT \
+  https://olist-calls-pro.herokuapp.com/api/pricing/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{
+        "name": "Standard time call",
+        "start_time": "06:00:00",
+        "end_time": "22:00:00",
+        "standing_charge": "0.36",
+        "minute_call_charge": "0.09"
+}'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/pricing/1/",
+    "id": 1,
+    "name": "Standard time call",
+    "start_time": "06:00:00",
+    "end_time": "22:00:00",
+    "standing_charge": "0.36",
+    "minute_call_charge": "0.09"
+}
+
+````
+
+#### Delete a Pricing Rule Record
+```console
+(DEL) https://olist-calls-pro.herokuapp.com/api/pricing/1/
+```
+cURL:
+
+````console
+curl -X DELETE \
+  https://olist-calls-pro.herokuapp.com/api/pricing/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(204 No Content)
+````
+
+
+#### Pricing Rules on Admin
+
+The price rule table can also be changed by API Admin.
 
 ```console
 https://olist-calls-pro.herokuapp.com/admin/

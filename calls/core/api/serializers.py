@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from calls.core.models.call import CallDetail, Call
+from calls.core.models.pricing_rule import PricingRule
 
 
 class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
@@ -94,3 +95,19 @@ class BillSerializer(serializers.ModelSerializer):
             "duration",
             "price"
         ]
+
+
+class PricingRuleSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = PricingRule
+        fields = (
+            'url',
+            'id',
+            'name',
+            'start_time',
+            'end_time',
+            'standing_charge',
+            'minute_call_charge'
+        )

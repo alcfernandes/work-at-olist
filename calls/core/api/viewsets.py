@@ -6,7 +6,8 @@ from rest_framework import status
 
 from calls.api_version import API_Version
 from calls.core.models.call import CallDetail, Call
-from calls.core.api.serializers import CallDetailSerializer, BillSerializer, CallSerializer
+from calls.core.models.pricing_rule import PricingRule
+from calls.core.api.serializers import CallDetailSerializer, BillSerializer, CallSerializer, PricingRuleSerializer
 from calls.core.util.helpers import current_month_year
 
 
@@ -68,3 +69,9 @@ class BillViewSet(viewsets.ViewSet):
         serializer = BillSerializer(queryset, context={'request': request}, many=True)
 
         return Response(serializer.data)
+
+
+class PricingRuleViewSet(viewsets.ModelViewSet):
+
+    queryset = PricingRule.objects.all()
+    serializer_class = PricingRuleSerializer
