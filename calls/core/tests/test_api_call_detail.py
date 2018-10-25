@@ -547,7 +547,7 @@ class APIStartTypeCallsDetailsValidationTest(APITestCase):
 
     def test_end_start_type_oder_validation(self):
         """
-        A start call detail record timestamp after than ebd call detail record timestamp should be rejected.
+        A start call detail record timestamp after than end call detail record timestamp should be rejected.
         """
 
         CallDetail.objects.create(
@@ -660,6 +660,70 @@ class APIEndTypeCallsDetailsValidationTest(APITestCase):
         response = self.client.post('/api/call-detail/', payload)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_on_end_type_calls_details_source_can_be_empty(self):
+        """
+        An end type Call Detail Record must accept an empty source telephone number.
+        """
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.END,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'source': "",
+            'call_id': 70,
+        }
+
+        expected_response = {
+            'url': 'http://testserver/api/call-detail/1/',
+            'id': 1,
+            'type': CallDetail.END,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'source': "",
+            'destination': None,
+            'call_id': 70
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertJSONEqual(
+            str(response.content, encoding='utf8'),
+            expected_response
+        )
+
+    def test_on_end_type_calls_details_destination_can_be_empty(self):
+        """
+        An end type Call Detail Record must accept an empty destination telephone number.
+        """
+
+        payload = {
+            'id': 1,
+            'type': CallDetail.END,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'destination': "",
+            'call_id': 70,
+        }
+
+        expected_response = {
+            'url': 'http://testserver/api/call-detail/1/',
+            'id': 1,
+            'type': CallDetail.END,
+            'timestamp': "2016-02-29T12:00:00Z",
+            'source': None,
+            'destination': "",
+            'call_id': 70
+        }
+
+        response = self.client.post('/api/call-detail/', payload)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertJSONEqual(
             str(response.content, encoding='utf8'),

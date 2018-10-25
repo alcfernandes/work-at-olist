@@ -16,10 +16,12 @@ class CallDetailSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError("A start-type call detail record must have a destination telephone "
                                               "number.")
 
-        if data['type'] == CallDetail.END and 'source' in data:
+        if data['type'] == CallDetail.END and 'source' in data \
+                and data['source'] is not None and data['source'] != "":
             raise serializers.ValidationError("A end-type call detail record should not have a source telephone number.")
 
-        if data['type'] == CallDetail.END and 'destination' in data:
+        if data['type'] == CallDetail.END and 'destination' in data \
+                and data['destination'] is not None and data['destination'] != "":
             raise serializers.ValidationError("A end-type call detail record should not have a destination telephone "
                                               "number.")
 
