@@ -4,12 +4,12 @@ from django.test import TestCase
 
 from freezegun import freeze_time
 
-from calls.core.util.helpers import time_between, current_month_year, last_month_year
+from calls.core.util.helpers import time_between, current_month_year, last_month_year, valid_phone_number
 
 
 class TimeBetweenTest(TestCase):
     """
-    TimeBetween() should return the elapsed time between two dates and times in the format _h_m_s
+    time_between() should return the elapsed time between two dates and times in the format _h_m_s
     e.g. 0h35m42s
     """
 
@@ -36,7 +36,7 @@ class TimeBetweenTest(TestCase):
 
 class CurrentMonthYearTest(TestCase):
     """
-    CurrentMonthYear() should return a date and time corresponding to the first day of the current month and year
+    current_month_year() should return a date and time corresponding to the first day of the current month and year
     """
     @freeze_time('2018-11-10')
     def test_current_month_year(self):
@@ -47,7 +47,7 @@ class CurrentMonthYearTest(TestCase):
 
 class LastMonthYearTest(TestCase):
     """
-    LastMonthYear() should return a date and time corresponding to the first day of the last month and year
+    last_month_year() should return a date and time corresponding to the first day of the last month and year
     """
     @freeze_time('2018-11-10')
     def test_last_month_year(self):
@@ -60,3 +60,21 @@ class LastMonthYearTest(TestCase):
         expected_result = datetime(2017, 12, 1)
         result = last_month_year()
         self.assertEqual(expected_result, result)
+
+
+class ValidPhoneNumberTest(TestCase):
+    """
+    ValidPhoneNumber(telephone) should return True if telephone has a valid format.
+    Only digits. Length: 10-11.
+    """
+    def test_only_digits_validation(self):
+        self.assertFalse(valid_phone_number('XPT1234567'))
+
+    def test_max_digits_validation(self):
+        self.assertFalse(valid_phone_number('123456789012'))
+
+    def test_min_digits_validation(self):
+        self.assertFalse(valid_phone_number('123456789'))
+
+    def test_valid_phone_validation(self):
+        self.assertTrue(valid_phone_number('1234567890'))

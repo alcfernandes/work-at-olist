@@ -8,7 +8,7 @@ from calls.api_version import API_Version
 from calls.core.models.call import CallDetail, Call
 from calls.core.models.pricing_rule import PricingRule
 from calls.core.api.serializers import CallDetailSerializer, BillSerializer, CallSerializer, PricingRuleSerializer
-from calls.core.util.helpers import current_month_year, last_month_year
+from calls.core.util.helpers import current_month_year, last_month_year, valid_phone_number
 
 
 class ApiVersion(viewsets.ViewSet):
@@ -37,6 +37,10 @@ class BillViewSet(viewsets.ViewSet):
 
         if subscriber is None:
             msg = "Use the subscriber parameter to inform the subscriber's phone number"
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+
+        if not valid_phone_number(subscriber):
+            msg = "Invalid subscriber. Length of 10 to 11 characters, only digits"
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
 
         queryset = Call.objects.filter(detail_start__source=subscriber)

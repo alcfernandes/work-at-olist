@@ -1,3 +1,5 @@
+import re
+
 from datetime import timedelta, datetime
 
 
@@ -40,3 +42,13 @@ def last_month_year():
     last_month = first - timedelta(days=1)
 
     return datetime(last_month.year, last_month.month, 1)
+
+
+def valid_phone_number(phone_number):
+    """
+    Return True if telephone has a valid format.
+    Only digits. Length: 10-11.
+    """
+    pattern = re.compile(r'^\d{10,11}$')
+
+    return pattern.match(phone_number)
