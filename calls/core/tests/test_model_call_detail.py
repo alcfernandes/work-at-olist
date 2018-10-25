@@ -94,3 +94,22 @@ class CallDetailModelDateTimeOrderValidationTest(TestCase):
                 destination="9933468278",
                 call_id=70,
             )
+
+
+class CallDetailModelCallIdValidationTest(TestCase):
+
+    def test_call_id_validation(self):
+        """
+        Call id should be greater than zero
+        """
+
+        with self.assertRaises(ValidationError):
+            CallDetail.objects.create(
+                type=CallDetail.START,
+                timestamp=datetime(2016, 2, 29, 12, 00, 00, tzinfo=pytz.UTC),
+                source="99988526423",
+                destination="9933468278",
+                call_id=-70,
+
+            )
+

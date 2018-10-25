@@ -769,3 +769,30 @@ class APICallDetailCreateUniqueTypeCallValidation(APITestCase):
             expected_response
         )
 
+
+class APICallDetailCallIdValidation(APITestCase):
+    """
+    Call Details with invalid id should be rejected.
+    """
+
+    def test_negative_call_id_validation(self):
+        payload = {
+            'type': CallDetail.START,
+            'timestamp': "2016-02-29T10:00:00Z",
+            'source': "99988526423",
+            'destination': "9933468278",
+            'call_id': -70,
+        }
+
+        self.response = self.client.post('/api/call-detail/', payload)
+        expected_response = {
+            "validation_error": "Call ID should be greater than zero"
+        }
+
+        self.assertEqual(self.response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertJSONEqual(
+            str(self.response.content, encoding='utf8'),
+            expected_response
+        )
+

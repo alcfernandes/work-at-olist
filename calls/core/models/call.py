@@ -55,6 +55,11 @@ class CallDetail(models.Model):
                f'from {self.source} to {self.destination}.'
 
     def save(self, *args, **kwargs):
+
+        if self.call_id <= 0:
+            msg = "Call ID should be greater than zero"
+            raise ValidationError(msg)
+
         call = Call.objects.filter(id=self.call_id)
 
         if call and self.type == CallDetail.START \
