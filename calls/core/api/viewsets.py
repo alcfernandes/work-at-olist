@@ -8,7 +8,7 @@ from calls.api_version import API_Version
 from calls.core.models.call import CallDetail, Call
 from calls.core.models.pricing_rule import PricingRule
 from calls.core.api.serializers import CallDetailSerializer, BillSerializer, CallSerializer, PricingRuleSerializer
-from calls.core.util.helpers import current_month_year
+from calls.core.util.helpers import current_month_year, last_month_year, valid_phone_number
 
 
 class ApiVersion(viewsets.ViewSet):
@@ -39,6 +39,10 @@ class BillViewSet(viewsets.ViewSet):
             msg = "Use the subscriber parameter to inform the subscriber's phone number"
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
 
+        if not valid_phone_number(subscriber):
+            msg = "Invalid subscriber. Length of 10 to 11 characters, only digits"
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+
         queryset = Call.objects.filter(detail_start__source=subscriber)
 
         if period is not None:
@@ -59,16 +63,24 @@ class BillViewSet(viewsets.ViewSet):
 
         else:
             # Period is not informed. Get the previous month.
+            last_month = last_month_year()
+            period = last_month.strftime("%m/%Y")
             filter_period = {
-                'detail_end__timestamp__year': datetime.now().year,
-                'detail_end__timestamp__month': datetime.now().month - 1
+                'detail_end__timestamp__year': last_month.year,
+                'detail_end__timestamp__month': last_month.month
             }
 
         queryset = queryset.filter(**filter_period)
 
         serializer = BillSerializer(queryset, context={'request': request}, many=True)
 
-        return Response(serializer.data)
+        data = {
+            'subscriber': subscriber,
+            'period': period,
+            'calls': serializer.data,
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class PricingRuleViewSet(viewsets.ModelViewSet):

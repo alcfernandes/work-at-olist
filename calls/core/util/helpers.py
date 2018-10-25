@@ -1,3 +1,5 @@
+import re
+
 from datetime import timedelta, datetime
 
 
@@ -30,3 +32,23 @@ def current_month_year():
     today = datetime.now()
     return datetime(today.year, today.month, 1)
 
+
+def last_month_year():
+    """
+    Returns a datetime correspond to the first day of the last month and year.
+    """
+    today = datetime.now()
+    first = today.replace(day=1)
+    last_month = first - timedelta(days=1)
+
+    return datetime(last_month.year, last_month.month, 1)
+
+
+def valid_phone_number(phone_number):
+    """
+    Return True if telephone has a valid format.
+    Only digits. Length: 10-11.
+    """
+    pattern = re.compile(r'^\d{10,11}$')
+
+    return pattern.match(phone_number)
