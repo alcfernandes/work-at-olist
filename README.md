@@ -1,215 +1,506 @@
 # Work at Olist
 
-[Olist](https://olist.com/) is a company that offers an integration platform
-for sellers and marketplaces allowing them to sell their products across
-multiple channels.
+# Description
 
-The Olist development team consists of developers who loves what they do. Our
-agile development processes and our search for the best development practices
-provide a great environment for professionals who like to create quality
-software in good company.
+A solution to the [problem](https://github.com/olist/work-at-olist/blob/master/README.md) proposed by [Olist](https://olist.com/).
 
-We are always looking for good programmers who love to improve their work. We
-give preference to small teams with qualified professionals over large teams
-with average professionals.
+This application implements a HTTP REST API that receives records of telephone calls and calculates monthly bills 
+for a given subscriber.
 
-This repository contains a problem used to evaluate the candidate skills.
-It's important to notice that satisfactorily solving the problem is just a
-part of what will be evaluated. We also consider other programming disciplines
-like documentation, testing, commit timeline, design and coding best
-practices.
-
-Hints:
-
-* Carefully read the specification to understand all the problem and
-  artifact requirements before start.
-* Check the recommendations and reference material at the end of this
-  specification.
+Working environment: [Api Root](https://olist-calls-pro.herokuapp.com/api/). [Api Admin](https://olist-calls-pro.herokuapp.com/admin/). (*login: olist, password: olist2018*)
 
 
-## How to participate
+## Installing and testing instructions
+1. Clone the repository;  
+2. Create a virtual environment;
+3. Activate the virtual environment;
+4. Install the dependencies;
+5. Configure the instance with .env;
+6. Run data migration;
+7. Run the tests;
+8. Create super user;
+9. Load default pricing rules;
+9. Run Django Server.
 
-1. Make a fork of this repository on Github. If you can't create a
-   public fork of this project, make a private repository
-   (bitbucket offers free private repos) and add read permission for the
-   user [@tech-hiring](https://bitbucket.org/tech-hiring) on project;
-2. Follow the instructions of README.md (this file);
-3. Deploy your project on a host service (we recommend
-   [Heroku](https://heroku.com) or [gigalixir](https://www.gigalixir.com));
-4. Apply for the position at our [career page](https://www.99jobs.com/olist)
-   with:
-   * Link to the fork on Github (or bitbucket.org);
-   * Link to the project in a the deployed host service.
-
-
-## Specification
-
-You should implement an application that receives call detail records
-and calculates monthly bills for a given telephone number.
-
-There are a plenty of telecommunications platform technologies that will
-consume this application. Some of them have weird behaviours when something
-goes wrong. That said it's not safe to believe in received data correctness,
-consistency nor expect some order in their requests. The application should
-have flexibility in receiving information to avoid record loss or inconsistency.
-
-This application must provide a HTTP REST API to attend the
-requirements.
-
-
-### 1. Receive telephone call detail records
-
-There are two call detailed record types: **Call Start Record** and **Call
-End Record**. To get all information of a telephone call you should use the
-records pair.
-
-Call Start Record information:
-
-* **record type**: Indicate if it's a call start or end record;
-* **record timestamp**: The timestamp of when the event occured;
-* **call identifier**: Unique for each call record pair;
-* **origin phone number**: The subscriber phone number that originated the
-  call;
-* **destination phone number**: The phone number receiving the call.
-
-The Call End Record has the same information excepting **origin** and
-**destination** fields.
-
-The phone number format is *AAXXXXXXXXX*, where *AA* is the area code and
-*XXXXXXXXX* is the phone number. The area code is always composed of two digits
-while the phone number can be composed of 8 or 9 digits.
-
-
-#### Examples
-
-1. Call Start Record
-
+```console
+git clone https://github.com/alcfernandes/work-at-olist.git work-at-olist
+cd work-at-olist/
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+cp contrib/env-sample .env
+python manage.py migrate
+python manage.py test
+python manage.py createsuperuser
+python manage.py loaddata contrib/pricingrule.json
+python manage.py runserver
 ```
+
+## Work Environment (Brief Description)
+
+|   |    |
+|---|---|
+|  Computer |   MacBook Air - 1.7GHz Intel Core i7 - 8GB memory |
+|  Operating System | macOS High Sierra (10.13.6)  |
+|  IDE | PyCharm 2018.2.4 (Professional Edition)   |
+|  Python | 3.7.0  |
+|  Main Libraries| Django 2.1.2 /  Django Rest Framework 3.8.2 |
+
+
+## API Documentation
+
+### Call Detail Record
+
+#### List Call Detail records
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/call-detail/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+[
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+        "id": 1,
+        "type": "start",
+        "timestamp": "2016-02-29T12:00:00Z",
+        "source": "99988526423",
+        "destination": "9933468278",
+        "call_id": 70
+    },
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/2/",
+        "id": 2,
+        "type": "end",
+        "timestamp": "2016-02-29T14:00:00Z",
+        "source": null,
+        "destination": null,
+        "call_id": 70
+    }
+]
+````
+
+
+#### Create Start Call Detail Record
+```console
+(POST) https://olist-calls-pro.herokuapp.com/api/call-detail/
+```
+cURL:
+````console
+curl -X POST \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{
+    "type": "start",
+    "timestamp": "2016-02-29T12:00:00Z",
+    "source": "99988526423",
+    "destination": "9933468278",
+    "call_id": 70    
+}'
+````
+Result:
+
+````console
+(201 Created)
 {
-  "id":  // Record unique identificator;
-  "type":  // Indicate if it's a call "start" or "end" record;
-  "timestamp":  // The timestamp of when the event occured;
-  "call_id":  // Unique for each call record pair;
-  "source":  // The subscriber phone number that originated the call;
-  "destination":  // The phone number receiving the call.
+    "url": "https://olist-calls-prod.herokuapp.com/api/call-detail/17/",
+    "id": 17,
+    "type": "start",
+    "timestamp": "2016-02-29T12:00:00Z",
+    "source": "99988526423",
+    "destination": "9933468278",
+    "call_id": 70
 }
-```
 
-2. Call End Record
+````
 
+#### Create End Call Detail Record
+```console
+(POST) https://olist-calls-pro.herokuapp.com/api/call-detail/
 ```
+cURL:
+````console
+curl -X POST \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{
+    "type": "end",
+    "timestamp": "2016-02-29T14:00:00Z",
+    "call_id": 70    
+}'
+````
+Result:
+
+````console
+(201 Created)
 {
-   "id":  // Record unique identificator;
-   "type":  // Indicate if it's a call "start" or "end" record;
-   "timestamp":  // The timestamp of when the event occured;
-   "call_id":  // Unique for each call record pair.
+    "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/18/",
+    "id": 18,
+    "type": "end",
+    "timestamp": "2016-02-29T14:00:00Z",
+    "source": null,
+    "destination": null,
+    "call_id": 70
 }
+
+````
+
+#### Retrieve a Call Detail record
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/call-detail/1/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+    "id": 1,
+    "type": "start",
+    "timestamp": "2016-02-29T12:00:00Z",
+    "source": "99988526423",
+    "destination": "9933468278",
+    "call_id": 70
+}
+````
+
+#### Update a Call Detail Record
+
+```console
+(PUT) https://olist-calls-pro.herokuapp.com/api/call-detail/1/
+```
+cURL:
+
+````console
+curl -X PUT \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{
+    "type": "start",
+    "timestamp": "2016-02-29T10:00:00Z",
+    "source": "99988526423",
+    "destination": "9933468278",
+    "call_id": 70    
+}'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+    "id": 1,
+    "type": "start",
+    "timestamp": "2016-02-29T10:00:00Z",
+    "source": "99988526423",
+    "destination": "9933468278",
+    "call_id": 70
+}
+
+````
+
+#### Delete a Call Detail Record
+```console
+(DEL) https://olist-calls-pro.herokuapp.com/api/call-detail/1/
+```
+cURL:
+
+````console
+curl -X DELETE \
+  https://olist-calls-pro.herokuapp.com/api/call-detail/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(204 No Content)
+````
+
+### Call
+
+#### List Call records
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/call/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/call/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+[
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/call/70/",
+        "id": 70,
+        "detail_start": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+        "detail_end": "https://olist-calls-pro.herokuapp.com/api/call-detail/2/",
+        "duration": "2h0m0s",
+        "price": "11.16"
+    }
+]
+````
+
+#### Retrieve a Call record
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/call/70/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/call/70/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/call/70/",
+    "id": 70,
+    "detail_start": "https://olist-calls-pro.herokuapp.com/api/call-detail/1/",
+    "detail_end": "https://olist-calls-pro.herokuapp.com/api/call-detail/2/",
+    "duration": "2h0m0s",
+    "price": "11.16"
+}
+````
+
+### Bill
+
+#### Get a Subscriber Bill
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/bill/?subscriber=99988526423&period=02/2016
+```
+cURL:
+
+````console
+curl -X GET \
+  'https://olist-calls-pro.herokuapp.com/api/bill/?subscriber=99988526423&period=02/2016' \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "subscriber": "99988526423",
+    "period": "02/2016",
+    "calls": [
+        {
+            "destination": "9933468278",
+            "start_date": "2016-02-29",
+            "start_time": "12:00:00",
+            "duration": "2h0m0s",
+            "price": "11.16"
+        }
+    ]
+}
+````
+
+### Pricing Rules
+
+#### List Pricing Rules records
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/pricing/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/pricing/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+[
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/pricing/1/",
+        "id": 1,
+        "name": "Standard time call",
+        "start_time": "06:00:00",
+        "end_time": "22:00:00",
+        "standing_charge": "0.36",
+        "minute_call_charge": "0.09"
+    },
+    {
+        "url": "https://olist-calls-pro.herokuapp.com/api/pricing/2/",
+        "id": 2,
+        "name": "Reduced tariff time call",
+        "start_time": "22:00:00",
+        "end_time": "06:00:00",
+        "standing_charge": "0.36",
+        "minute_call_charge": "0.00"
+    }
+]
+````
+
+
+#### Create Pricing Rule Record
+```console
+(POST) https://olist-calls-pro.herokuapp.com/api/pricing/
+```
+cURL:
+````console
+curl -X POST \
+  https://olist-calls-pro.herokuapp.com/api/pricing/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{
+        "name": "Standard time call",
+        "start_time": "06:00:00",
+        "end_time": "22:00:00",
+        "standing_charge": "0.36",
+        "minute_call_charge": "0.09"
+}'
+````
+Result:
+
+````console
+(201 Created)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/pricing/1/",
+    "id": 1,
+    "name": "Standard time call",
+    "start_time": "06:00:00",
+    "end_time": "22:00:00",
+    "standing_charge": "0.36",
+    "minute_call_charge": "0.09"
+}
+
+````
+
+#### Retrieve a Pricing Rule record
+
+```console
+(GET) https://olist-calls-pro.herokuapp.com/api/pricing/1/
+```
+cURL:
+
+````console
+curl -X GET \
+  https://olist-calls-pro.herokuapp.com/api/pricing/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/pricing/1/",
+    "id": 1,
+    "name": "Standard time call",
+    "start_time": "06:00:00",
+    "end_time": "22:00:00",
+    "standing_charge": "0.36",
+    "minute_call_charge": "0.09"
+}
+````
+
+#### Update a Pricing Rule Record
+
+```console
+(PUT) https://olist-calls-pro.herokuapp.com/api/pricing/1/
+```
+cURL:
+
+````console
+curl -X PUT \
+  https://olist-calls-pro.herokuapp.com/api/pricing/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{
+        "name": "Standard time call",
+        "start_time": "06:00:00",
+        "end_time": "22:00:00",
+        "standing_charge": "0.36",
+        "minute_call_charge": "0.09"
+}'
+````
+Result:
+
+````console
+(200 OK)
+{
+    "url": "https://olist-calls-pro.herokuapp.com/api/pricing/1/",
+    "id": 1,
+    "name": "Standard time call",
+    "start_time": "06:00:00",
+    "end_time": "22:00:00",
+    "standing_charge": "0.36",
+    "minute_call_charge": "0.09"
+}
+
+````
+
+#### Delete a Pricing Rule Record
+```console
+(DEL) https://olist-calls-pro.herokuapp.com/api/pricing/1/
+```
+cURL:
+
+````console
+curl -X DELETE \
+  https://olist-calls-pro.herokuapp.com/api/pricing/1/ \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache'
+````
+Result:
+
+````console
+(204 No Content)
+````
+
+
+#### Pricing Rules on Admin
+
+The price rule table can also be changed by API Admin.
+
+```console
+https://olist-calls-pro.herokuapp.com/admin/
 ```
 
-
-### 2. Get telephone bill
-
-To get a telephone bill we need two information: the subscriber telephone
-number (required); the reference period (month/year) (optional). If the
-reference period is not informed the system will consider the last closed
-period. In other words it will get the previous month. It's only
-possible to get a telephone bill after the reference period has ended.
-
-The telephone bill itself is composed by subscriber and period
-attributes and a list of all call records of the period. A call record
-belongs to the period in which the call has ended (eg. A call that
-started on January 31st and finished in February 1st belongs to February
-period).
-
-Each telephone bill call record has the fields:
-
-* destination
-* call start date
-* call start time
-* call duration (hour, minute and seconds): e.g. 0h35m42s
-* call price: e.g. R$ 3,96
+|   |    |
+|---|---|
+|  Login |   olist |
+|  Password | olist2018 |
 
 
-### 3. Pricing rules
-
-The call price depends on fixed charges, call duration and the time of
-the day that the call was made. There are two tariff times:
-
-1. Standard time call - between 6h00 and 22h00 (excluding):
-   * Standing charge: R$ 0,36 (fixed charges that are used to pay for the
-     cost of the connection);
-   * Call charge/minute: R$ 0,09 (there is no fractioned charge. The
-     charge applies to each completed 60 seconds cycle).
-
-2. Reduced tariff time call - between 22h00 and 6h00 (excluding):
-   * Standing charge: R$ 0,36
-   * Call charge/minute: R$ 0,00 (hooray!)
-
-It's important to notice that the price rules can change from time to
-time, but an already calculated call price can not change.
-
-
-#### Examples
-
-1. For a call started at 21:57:13 and finished at 22:17:53 we have:
-
-   * Standing charge: R$ 0,36
-   * Call charge:
-     * minutes between 21:57:13 and 22:00 = 2
-     * price: 2 * R$ 0,09 = R$ 0,18
-   * Total: R$ 0,18 + R$ 0,36 = R$ 0,54
-
-
-### 4. Sample data
-Insert the following calls to your app after it is deployed to a working environment (eg. Heroku, gigalixir). This sample data will be used in your evaluation, so do this as the last step before submitting the project.
-
-The following phone calls have been made from the number 99 98852 6423 to 99 3346 8278 (whitespaces are used here only for readability purposes, the phone numbers formats have been specified on a previous section).
-* call_id: 70, started at 2016-02-29T12:00:00Z and ended at 2016-02-29T14:00:00Z.
-* call_id: 71, started at 2017-12-12T15:07:13Z and ended at 2017-12-12T15:14:56Z.
-* call_id: 72, started at 2017-12-12T22:47:56Z and ended at 2017-12-12T22:50:56Z.
-* call_id: 73, started at 2017-12-12T21:57:13Z and ended at 2017-12-12T22:10:56Z.
-* call_id: 74, started at 2017-12-12T04:57:13Z and ended at 2017-12-12T06:10:56Z.
-* call_id: 75, started at 2017-12-12T21:57:13Z and ended at 2017-12-13T22:10:56Z.
-* call_id: 76, started at 2017-12-12T15:07:58Z and ended at 2017-12-12T15:12:56Z.
-* call_id: 77, started at 2018-02-28T21:57:13Z and ended at 2018-03-01T22:10:56Z.
-
-
-## Project Requirements:
-
-* Provide a working environment with your project (eg. Heroku, )
-* Application must be written in Python, Elixir or Go.
-* Python
-  * Use Python >= 3.5
-  * Choose any Python web framework you want to solve the problem
-  * Use PEP-8 for code style
-  * [Python Coding Style](http://docs.python-guide.org/en/latest/writing/style/)
-* Elixir
-  * Elixir >= 1.6.5
-  * Phoenix >= 1.3.0
-  * [Elixir Style Guide](http://elixir.community/styleguide)
-* Go
-  * Go >= 1.10
-  * [Effective Go](https://golang.org/doc/effective_go.html)
-* Every text or code must be in English
-* Write the project documentation containing:
-  * Description;
-  * Installing and testing instructions;
-  * Brief description of the work environment used to run this
-    project (Computer/operating system, text editor/IDE, libraries, etc).
-* Provide an API documentation (in english);
-* Variables, code and strings must be all in English.
-
-
-## Recommendations
-
-* Write tests!
-* Practice the [12 Factor-App](http://12factor.net) concepts;
-* Use [SOLID](https://en.wikipedia.org/wiki/SOLID_(object-oriented_design))
-  design principles;
-* Use programming good practices;
-* Use git best practices (https://www.git-tower.com/learn/git/ebook/en/command-line/appendix/best-practices),
-  with clear messages (written in English);
-* Be aware when modeling the database;
-* Be careful with REST API details. They can bite you!
-
-**Have fun!**

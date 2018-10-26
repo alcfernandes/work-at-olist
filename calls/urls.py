@@ -13,7 +13,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-schema_view = get_schema_view(title='Pastebin API')
+schema_view = get_schema_view(title='Calls API')
 
 from calls.core.urls import router as core_router
 router = DefaultRouter()
