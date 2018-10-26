@@ -4,7 +4,7 @@
 
 A solution to the [problem](https://github.com/olist/work-at-olist/blob/master/README.md) proposed by [Olist](https://olist.com/).
 
-This application implements an HTTP REST API that receives records of telephone calls and calculates monthly bills 
+This application implements a HTTP REST API that receives records of telephone calls and calculates monthly bills 
 for a given subscriber.
 
 Working environment: [Api Root](https://olist-calls-pro.herokuapp.com/api/). [Api Admin](https://olist-calls-pro.herokuapp.com/admin/). (*login: olist, password: olist2018*)
